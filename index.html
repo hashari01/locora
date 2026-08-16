@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Locora — Find Local Services</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f7f8fc;
+            color: #111827;
+        }
+
+        header {
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 18px 6%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 26px;
+            font-weight: 800;
+            color: #2563eb;
+        }
+
+        .language {
+            border: 1px solid #d1d5db;
+            padding: 8px 12px;
+            border-radius: 8px;
+            background: white;
+        }
+
+        .hero {
+            text-align: center;
+            padding: 80px 20px;
+            background: linear-gradient(135deg, #eff6ff, #ffffff);
+        }
+
+        .hero h1 {
+            font-size: 48px;
+            max-width: 800px;
+            margin: auto;
+            line-height: 1.1;
+        }
+
+        .hero p {
+            margin: 20px auto 30px;
+            color: #6b7280;
+            font-size: 18px;
+            max-width: 600px;
+        }
+
+        .search {
+            display: flex;
+            max-width: 650px;
+            margin: auto;
+            background: white;
+            padding: 8px;
+            border-radius: 14px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        }
+
+        .search input {
+            flex: 1;
+            border: none;
+            outline: none;
+            padding: 14px;
+            font-size: 16px;
+        }
+
+        .search button {
+            border: none;
+            background: #2563eb;
+            color: white;
+            padding: 14px 22px;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .section {
+            padding: 60px 6%;
+            max-width: 1200px;
+            margin: auto;
+        }
+
+        .section h2 {
+            text-align: center;
+            margin-bottom: 35px;
+            font-size: 30px;
+        }
+
+        .categories {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 18px;
+        }
+
+        .category {
+            background: white;
+            padding: 28px 20px;
+            border-radius: 14px;
+            text-align: center;
+            border: 1px solid #e5e7eb;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .category:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+        }
+
+        .category-icon {
+            font-size: 35px;
+            margin-bottom: 12px;
+        }
+
+        .category h3 {
+            margin-bottom: 7px;
+        }
+
+        .category p {
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .business-section {
+            background: white;
+        }
+
+        .business-box {
+            max-width: 900px;
+            margin: auto;
+            text-align: center;
+            padding: 45px 25px;
+            border-radius: 18px;
+            background: #eff6ff;
+        }
+
+        .business-box h2 {
+            margin-bottom: 15px;
+        }
+
+        .business-box p {
+            color: #6b7280;
+            margin-bottom: 25px;
+        }
+
+        .business-button {
+            display: inline-block;
+            background: #2563eb;
+            color: white;
+            padding: 14px 22px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        footer {
+            background: #111827;
+            color: white;
+            text-align: center;
+            padding: 30px 20px;
+        }
+
+        footer p {
+            color: #9ca3af;
+            margin-top: 8px;
+        }
+
+        @media (max-width: 600px) {
+            .hero h1 {
+                font-size: 36px;
+            }
+
+            .search {
+                flex-direction: column;
+                background: transparent;
+                box-shadow: none;
+                gap: 10px;
+            }
+
+            .search input {
+                border-radius: 10px;
+                background: white;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <div class="logo">Locora</div>
+
+    <select class="language">
+        <option>🇺🇸 English</option>
+        <option>🇹🇳 العربية</option>
+        <option>🇫🇷 Français</option>
+    </select>
+</header>
+
+
+<section class="hero">
+
+    <h1>
+        Find trusted local services near you.
+    </h1>
+
+    <p>
+        Discover businesses, professionals, and services
+        in your area — all in one place.
+    </p>
+
+    <div class="search">
+        <input
+            type="text"
+            placeholder="What service are you looking for?"
+        >
+
+        <button>
+            Search
+        </button>
+    </div>
+
+</section>
+
+
+<section class="section">
+
+    <h2>Explore Services</h2>
+
+    <div class="categories">
+
+        <div class="category">
+            <div class="category-icon">🔧</div>
+            <h3>Home Repair</h3>
+            <p>Find trusted repair professionals.</p>
+        </div>
+
+        <div class="category">
+            <div class="category-icon">🚗</div>
+            <h3>Auto Services</h3>
+            <p>Mechanics, detailing and more.</p>
+        </div>
+
+        <div class="category">
+            <div class="category-icon">💇</div>
+            <h3>Beauty</h3>
+            <p>Barbers, salons and beauty services.</p>
+        </div>
+
+        <div class="category">
+            <div class="category-icon">🍽️</div>
+            <h3>Restaurants</h3>
+            <p>Discover places to eat nearby.</p>
+        </div>
+
+        <div class="category">
+            <div class="category-icon">💻</div>
+            <h3>Technology</h3>
+            <p>Computer and tech professionals.</p>
+        </div>
+
+        <div class="category">
+            <div class="category-icon">📦</div>
+            <h3>Delivery</h3>
+            <p>Local delivery and moving services.</p>
+        </div>
+
+    </div>
+
+</section>
+
+
+<section class="business-section">
+
+    <div class="section">
+
+        <div class="business-box">
+
+            <h2>Own a local business?</h2>
+
+            <p>
+                Get discovered by people looking for
+                your services.
+            </p>
+
+            <a href="#" class="business-button">
+                List Your Business
+            </a>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<footer>
+
+    <strong>Locora</strong>
+
+    <p>
+        Find local. Support local.
+    </p>
+
+</footer>
+
+
+<script>
+
+    document.querySelector(".search button")
+        .addEventListener("click", function () {
+
+            const search =
+                document.querySelector(".search input").value;
+
+            if (!search.trim()) {
+                alert("Please enter a service.");
+                return;
+            }
+
+            alert(
+                `Searching Locora for "${search}"...`
+            );
+
+        });
+
+</script>
+
+</body>
+</html>
