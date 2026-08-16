@@ -1,3 +1,4 @@
+```javascript
 const API_URL = "https://locora-api.onrender.com";
 
 /* =========================================================
@@ -6,6 +7,7 @@ const API_URL = "https://locora-api.onrender.com";
 
 let selectedLocation = null;
 let searchTimer = null;
+let searchRequestId = 0;
 
 
 /* =========================================================
@@ -34,44 +36,106 @@ document.addEventListener("DOMContentLoaded", () => {
     const input = getSearchInput();
 
     if (!input) {
+        console.warn("Locora: #searchInput was not found.");
         return;
     }
 
+    selectedLocation = loadSavedLocation();
+
     createLocationUI();
 
-    input.addEventListener("input", handleLocationTyping);
+    /*
+     * If a location was already selected,
+     * restore it into the search box.
+     */
 
-    input.addEventListener("focus", () => {
+    if (selectedLocation) {
 
-        if (input.value.trim().length >= 2) {
-            searchLocations(input.value.trim());
+        input.value =
+            selectedLocation.name ||
+            selectedLocation.displayName ||
+            "";
+
+        updateSelectedStatus();
+    }
+
+
+    /*
+     * Typing in the search box.
+     */
+
+    input.addEventListener(
+        "input",
+        handleLocationTyping
+    );
+
+
+    /*
+     * Focus search box.
+     */
+
+    input.addEventListener(
+        "focus",
+        () => {
+
+            const value =
+                input.value.trim();
+
+            if (value.length >= 2) {
+
+                searchLocations(value);
+
+            } else {
+
+                showCurrentLocationButton();
+            }
         }
+    );
 
-    });
 
-    input.addEventListener("keydown", event => {
+    /*
+     * Keyboard controls.
+     */
 
-        if (event.key === "Escape") {
-            hideSuggestions();
-        }
+    input.addEventListener(
+        "keydown",
+        event => {
 
-        if (event.key === "Enter") {
+            if (event.key === "Escape") {
 
-            event.preventDefault();
+                hideSuggestions();
 
-            const firstSuggestion =
-                document.querySelector(
-                    ".location-suggestion"
-                );
-
-            if (firstSuggestion) {
-                firstSuggestion.click();
+                return;
             }
 
+
+            if (event.key === "Enter") {
+
+                event.preventDefault();
+
+                const first =
+                    document.querySelector(
+                        ".location-suggestion"
+                    );
+
+                if (first) {
+
+                    first.click();
+
+                } else {
+
+                    searchLocora();
+                }
+            }
         }
+    );
 
-    });
 
+    /*
+     * Make sure the UI exists.
+     */
+
+    showCurrentLocationButton();
 });
 
 
@@ -81,28 +145,37 @@ document.addEventListener("DOMContentLoaded", () => {
 
 function createLocationUI() {
 
-    const input = getSearchInput();
+    const input =
+        getSearchInput();
 
     if (!input) {
         return;
     }
 
+
     const searchBox =
         input.closest(".search-box");
 
+
     if (!searchBox) {
+
+        console.warn(
+            "Locora: .search-box was not found."
+        );
+
         return;
     }
 
 
     /*
-     * Create suggestions container
+     * Suggestions container.
      */
 
     let suggestions =
         document.getElementById(
             "locationSuggestions"
         );
+
 
     if (!suggestions) {
 
@@ -115,21 +188,28 @@ function createLocationUI() {
         suggestions.className =
             "location-suggestions";
 
-        searchBox.parentElement.insertBefore(
-            suggestions,
-            searchBox.nextSibling
+
+        /*
+         * Put suggestions directly
+         * below the search box.
+         */
+
+        searchBox.insertAdjacentElement(
+            "afterend",
+            suggestions
         );
     }
 
 
     /*
-     * Create current location button
+     * Current location button.
      */
 
     let currentLocationButton =
         document.getElementById(
             "currentLocationButton"
         );
+
 
     if (!currentLocationButton) {
 
@@ -148,14 +228,21 @@ function createLocationUI() {
         currentLocationButton.innerHTML =
             "📍 Use my current location";
 
+
         currentLocationButton.addEventListener(
             "click",
             useCurrentLocation
         );
 
-        suggestions.parentElement.insertBefore(
-            currentLocationButton,
-            suggestions.nextSibling
+
+        /*
+         * Put current-location button
+         * directly below search suggestions.
+         */
+
+        suggestions.insertAdjacentElement(
+            "afterend",
+            currentLocationButton
         );
     }
 
@@ -170,17 +257,20 @@ function createLocationUI() {
 
 function handleLocationTyping(event) {
 
+    const input =
+        event.target;
+
     const value =
-        event.target.value.trim();
+        input.value.trim();
 
 
     /*
-     * Clear previously selected location
-     * if user changes the search.
+     * User changed the selected location.
      */
 
     if (
         selectedLocation &&
+        value !== selectedLocation.name &&
         value !== selectedLocation.searchValue
     ) {
 
@@ -195,6 +285,24 @@ function handleLocationTyping(event) {
     clearTimeout(searchTimer);
 
 
+    /*
+     * Empty search.
+     */
+
+    if (!value) {
+
+        hideSuggestions();
+
+        showCurrentLocationButton();
+
+        return;
+    }
+
+
+    /*
+     * Too short.
+     */
+
     if (value.length < 2) {
 
         hideSuggestions();
@@ -203,12 +311,19 @@ function handleLocationTyping(event) {
     }
 
 
+    /*
+     * Wait until user stops typing.
+     */
+
     searchTimer =
-        setTimeout(() => {
+        setTimeout(
+            () => {
 
-            searchLocations(value);
+                searchLocations(value);
 
-        }, 350);
+            },
+            300
+        );
 }
 
 
@@ -221,34 +336,86 @@ async function searchLocations(query) {
     const suggestions =
         getSuggestions();
 
+
     if (!suggestions) {
         return;
     }
 
 
+    const cleanQuery =
+        String(query || "").trim();
+
+
+    if (cleanQuery.length < 2) {
+
+        hideSuggestions();
+
+        return;
+    }
+
+
+    /*
+     * Create unique request ID.
+     *
+     * This prevents an older API request
+     * from replacing newer results.
+     */
+
+    const requestId =
+        ++searchRequestId;
+
+
+    /*
+     * Show loading.
+     */
+
     suggestions.innerHTML = `
         <div class="location-loading">
-            🔎 Searching locations...
+            <span class="location-spinner"></span>
+            Searching for "${escapeHtml(cleanQuery)}"...
         </div>
     `;
+
 
     suggestions.classList.add(
         "visible"
     );
 
 
+    showCurrentLocationButton();
+
+
     try {
 
         const response =
             await fetch(
-                `${API_URL}/search?q=${encodeURIComponent(query)}`
+                `${API_URL}/search?q=${encodeURIComponent(cleanQuery)}`,
+                {
+                    method: "GET",
+                    headers: {
+                        "Accept":
+                            "application/json"
+                    }
+                }
             );
+
+
+        /*
+         * Ignore old request.
+         */
+
+        if (
+            requestId !== searchRequestId
+        ) {
+
+            return;
+        }
 
 
         if (!response.ok) {
 
             throw new Error(
-                `Location search failed: ${response.status}`
+                `API returned ${response.status}`
             );
         }
 
@@ -258,12 +425,13 @@ async function searchLocations(query) {
 
 
         if (
-            !data.success ||
+            !data ||
+            data.success !== true ||
             !Array.isArray(data.results)
         ) {
 
             throw new Error(
-                "Invalid location response."
+                "Invalid API response."
             );
         }
 
@@ -272,17 +440,37 @@ async function searchLocations(query) {
             data.results;
 
 
+        /*
+         * No results.
+         */
+
         if (results.length === 0) {
 
             suggestions.innerHTML = `
                 <div class="location-empty">
-                    No locations found.
+
+                    <div class="location-empty-icon">
+                        🔍
+                    </div>
+
+                    <strong>
+                        No locations found
+                    </strong>
+
+                    <span>
+                        Try searching for a city, state, country, or address.
+                    </span>
+
                 </div>
             `;
 
             return;
         }
 
+
+        /*
+         * Render results.
+         */
 
         suggestions.innerHTML =
             results
@@ -296,43 +484,76 @@ async function searchLocations(query) {
                 .join("");
 
 
+        /*
+         * Attach click events.
+         */
+
         suggestions
             .querySelectorAll(
                 ".location-suggestion"
             )
-            .forEach(button => {
+            .forEach(
+                button => {
 
-                button.addEventListener(
-                    "click",
-                    () => {
+                    button.addEventListener(
+                        "click",
+                        () => {
 
-                        const index =
-                            Number(
-                                button.dataset.index
+                            const index =
+                                Number(
+                                    button.dataset.index
+                                );
+
+
+                            const location =
+                                results[index];
+
+
+                            selectLocation(
+                                location,
+                                cleanQuery
                             );
-
-                        selectLocation(
-                            results[index],
-                            query
-                        );
-
-                    }
-                );
-
-            });
+                        }
+                    );
+                }
+            );
 
 
     } catch (error) {
 
+        /*
+         * Ignore old requests.
+         */
+
+        if (
+            requestId !== searchRequestId
+        ) {
+
+            return;
+        }
+
+
         console.error(
-            "Location search error:",
+            "Locora location search error:",
             error
         );
 
 
         suggestions.innerHTML = `
             <div class="location-error">
-                Unable to search locations right now.
+
+                <div class="location-error-icon">
+                    ⚠️
+                </div>
+
+                <strong>
+                    Search temporarily unavailable
+                </strong>
+
+                <span>
+                    Please check your connection and try again.
+                </span>
+
             </div>
         `;
     }
@@ -340,7 +561,7 @@ async function searchLocations(query) {
 
 
 /* =========================================================
-   CREATE SUGGESTION
+   CREATE LOCATION SUGGESTION
 ========================================================= */
 
 function createSuggestion(
@@ -350,6 +571,7 @@ function createSuggestion(
 
     const name =
         location.name ||
+        location.displayName ||
         "Unknown location";
 
 
@@ -363,6 +585,11 @@ function createSuggestion(
         "location";
 
 
+    const category =
+        location.category ||
+        "";
+
+
     return `
         <button
             type="button"
@@ -374,20 +601,62 @@ function createSuggestion(
                 📍
             </span>
 
+
             <span class="suggestion-content">
 
                 <strong>
                     ${escapeHtml(name)}
                 </strong>
 
+
                 <small>
                     ${escapeHtml(displayName)}
                 </small>
 
+
+                <span class="suggestion-type">
+                    ${escapeHtml(
+                        formatLocationType(
+                            type,
+                            category
+                        )
+                    )}
+                </span>
+
+            </span>
+
+
+            <span class="suggestion-arrow">
+                →
             </span>
 
         </button>
     `;
+}
+
+
+/* =========================================================
+   FORMAT LOCATION TYPE
+========================================================= */
+
+function formatLocationType(
+    type,
+    category
+) {
+
+    const value =
+        category ||
+        type ||
+        "location";
+
+
+    return String(value)
+        .replaceAll("_", " ")
+        .replace(
+            /\b\w/g,
+            letter =>
+                letter.toUpperCase()
+        );
 }
 
 
@@ -413,7 +682,7 @@ function selectLocation(
     ) {
 
         console.error(
-            "Invalid coordinates:",
+            "Locora: Invalid coordinates.",
             location
         );
 
@@ -437,7 +706,10 @@ function selectLocation(
         longitude,
 
         searchValue:
-            originalSearch
+            originalSearch,
+
+        isCurrentLocation:
+            false
     };
 
 
@@ -445,12 +717,7 @@ function selectLocation(
      * Save location.
      */
 
-    localStorage.setItem(
-        "locoraSelectedLocation",
-        JSON.stringify(
-            selectedLocation
-        )
-    );
+    saveSelectedLocation();
 
 
     /*
@@ -461,15 +728,18 @@ function selectLocation(
     const input =
         getSearchInput();
 
+
     if (input) {
 
         input.value =
             selectedLocation.name;
+
+        input.blur();
     }
 
 
     /*
-     * Hide suggestions.
+     * Hide dropdown.
      */
 
     hideSuggestions();
@@ -479,30 +749,18 @@ function selectLocation(
      * Update status.
      */
 
-    const status =
-        getStatus();
-
-    if (status) {
-
-        status.innerHTML = `
-            📍 Selected:
-            <strong>
-                ${escapeHtml(
-                    selectedLocation.displayName
-                )}
-            </strong>
-        `;
-    }
+    updateSelectedStatus();
 
 
     /*
-     * Update button.
+     * Update search button.
      */
 
     const searchButton =
         document.getElementById(
             "searchButton"
         );
+
 
     if (searchButton) {
 
@@ -512,37 +770,11 @@ function selectLocation(
 
 
     /*
-     * Update location result
-     * if your existing HTML has it.
+     * Update result element
+     * if it exists.
      */
 
-    const locationResult =
-        document.getElementById(
-            "locationResult"
-        );
-
-    if (locationResult) {
-
-        locationResult.innerHTML = `
-
-            <strong>
-                📍 ${escapeHtml(
-                    selectedLocation.displayName
-                )}
-            </strong>
-
-            <small>
-                ${latitude.toFixed(5)}
-                ,
-                ${longitude.toFixed(5)}
-            </small>
-
-        `;
-
-        locationResult.classList.add(
-            "visible"
-        );
-    }
+    updateLocationResult();
 }
 
 
@@ -554,6 +786,7 @@ function useCurrentLocation() {
 
     const status =
         getStatus();
+
 
     const button =
         document.getElementById(
@@ -573,19 +806,27 @@ function useCurrentLocation() {
     }
 
 
+    /*
+     * Loading state.
+     */
+
     if (button) {
 
-        button.disabled = true;
+        button.disabled =
+            true;
 
         button.innerHTML =
-            "📍 Finding your location...";
+            `
+            <span class="location-spinner"></span>
+            Finding your location...
+            `;
     }
 
 
     if (status) {
 
         status.textContent =
-            "Allow location access to find where you are.";
+            "Allow location access to find your current location.";
     }
 
 
@@ -598,6 +839,7 @@ function useCurrentLocation() {
                     position.coords.latitude
                 );
 
+
             const longitude =
                 Number(
                     position.coords.longitude
@@ -608,14 +850,13 @@ function useCurrentLocation() {
                 latitude,
                 longitude
             );
-
         },
 
 
         error => {
 
             console.error(
-                "Geolocation error:",
+                "Locora geolocation error:",
                 error
             );
 
@@ -628,39 +869,44 @@ function useCurrentLocation() {
                 ) {
 
                     status.textContent =
-                        "Location permission was denied. Please allow location access in your browser.";
+                        "Location access was denied. Please allow location access in your browser.";
+
+                } else if (
+                    error.code ===
+                    error.TIMEOUT
+                ) {
+
+                    status.textContent =
+                        "Location request timed out. Please try again.";
 
                 } else {
 
                     status.textContent =
                         "Unable to find your current location. Please try again.";
-
                 }
             }
 
 
-            if (button) {
-
-                button.disabled = false;
-
-                button.innerHTML =
-                    "📍 Use my current location";
-            }
+            resetCurrentLocationButton();
         },
 
 
         {
-            enableHighAccuracy: true,
-            timeout: 15000,
-            maximumAge: 60000
-        }
+            enableHighAccuracy:
+                true,
 
+            timeout:
+                15000,
+
+            maximumAge:
+                60000
+        }
     );
 }
 
 
 /* =========================================================
-   REVERSE GEOCODE CURRENT LOCATION
+   REVERSE GEOCODE
 ========================================================= */
 
 async function reverseGeocode(
@@ -671,42 +917,25 @@ async function reverseGeocode(
     const status =
         getStatus();
 
-    const button =
-        document.getElementById(
-            "currentLocationButton"
-        );
-
 
     try {
 
         /*
-         * Use Nominatim directly for reverse
-         * geocoding.
+         * Use your own API.
+         *
+         * This avoids making the browser
+         * call Nominatim directly.
          */
 
         const url =
-            "https://nominatim.openstreetmap.org/reverse?" +
-            new URLSearchParams({
-
-                lat:
-                    latitude,
-
-                lon:
-                    longitude,
-
-                format:
-                    "json",
-
-                addressdetails:
-                    "1"
-
-            });
+            `${API_URL}/reverse?lat=${encodeURIComponent(latitude)}&lon=${encodeURIComponent(longitude)}`;
 
 
         const response =
             await fetch(
                 url,
                 {
+                    method: "GET",
                     headers: {
                         "Accept":
                             "application/json"
@@ -718,7 +947,7 @@ async function reverseGeocode(
         if (!response.ok) {
 
             throw new Error(
-                `Reverse geocoding failed: ${response.status}`
+                `Reverse API returned ${response.status}`
             );
         }
 
@@ -728,11 +957,14 @@ async function reverseGeocode(
 
 
         const displayName =
+            data.displayName ||
             data.display_name ||
             "Current location";
 
 
         const name =
+            data.name ||
+            data.city ||
             data.address?.city ||
             data.address?.town ||
             data.address?.village ||
@@ -758,100 +990,55 @@ async function reverseGeocode(
         };
 
 
-        localStorage.setItem(
-            "locoraSelectedLocation",
-            JSON.stringify(
-                selectedLocation
-            )
-        );
+        saveSelectedLocation();
 
 
         const input =
             getSearchInput();
 
+
         if (input) {
 
             input.value =
                 name;
+
+            input.blur();
         }
 
 
         hideSuggestions();
 
 
-        if (status) {
+        updateSelectedStatus();
 
-            status.innerHTML = `
-                📍 Using your current location:
-                <strong>
-                    ${escapeHtml(
-                        displayName
-                    )}
-                </strong>
-            `;
-        }
-
-
-        const locationResult =
-            document.getElementById(
-                "locationResult"
-            );
-
-
-        if (locationResult) {
-
-            locationResult.innerHTML = `
-
-                <strong>
-                    📍 ${escapeHtml(
-                        displayName
-                    )}
-                </strong>
-
-                <small>
-                    ${latitude.toFixed(5)}
-                    ,
-                    ${longitude.toFixed(5)}
-                </small>
-
-            `;
-
-            locationResult.classList.add(
-                "visible"
-            );
-        }
+        updateLocationResult();
 
 
         /*
-         * Automatically go to Explore
-         * after current location is found.
+         * Go to Explore.
          */
 
-        setTimeout(() => {
+        setTimeout(
+            () => {
 
-            goToExplore();
+                goToExplore();
 
-        }, 500);
+            },
+            400
+        );
 
 
     } catch (error) {
 
         console.error(
-            "Reverse geocoding error:",
+            "Locora reverse geocoding error:",
             error
         );
 
 
-        if (status) {
-
-            status.textContent =
-                "We found your coordinates, but couldn't identify the location name.";
-        }
-
-
         /*
-         * Even if reverse geocoding fails,
-         * keep the coordinates.
+         * We still have valid coordinates.
+         * Save them even if the name lookup fails.
          */
 
         selectedLocation = {
@@ -874,30 +1061,48 @@ async function reverseGeocode(
         };
 
 
-        localStorage.setItem(
-            "locoraSelectedLocation",
-            JSON.stringify(
-                selectedLocation
-            )
+        saveSelectedLocation();
+
+
+        const input =
+            getSearchInput();
+
+
+        if (input) {
+
+            input.value =
+                "Current location";
+
+            input.blur();
+        }
+
+
+        hideSuggestions();
+
+
+        if (status) {
+
+            status.textContent =
+                "Location found. Opening Explore...";
+        }
+
+
+        updateLocationResult();
+
+
+        setTimeout(
+            () => {
+
+                goToExplore();
+
+            },
+            500
         );
-
-
-        setTimeout(() => {
-
-            goToExplore();
-
-        }, 500);
 
 
     } finally {
 
-        if (button) {
-
-            button.disabled = false;
-
-            button.innerHTML =
-                "📍 Use my current location";
-        }
+        resetCurrentLocationButton();
     }
 }
 
@@ -911,14 +1116,14 @@ function searchLocora() {
     const input =
         getSearchInput();
 
+
     if (!input) {
         return;
     }
 
 
     /*
-     * If a location is already selected,
-     * go directly to Explore.
+     * Already selected.
      */
 
     if (selectedLocation) {
@@ -938,11 +1143,13 @@ function searchLocora() {
         const status =
             getStatus();
 
+
         if (status) {
 
             status.textContent =
                 "Type a location first.";
         }
+
 
         input.focus();
 
@@ -951,8 +1158,7 @@ function searchLocora() {
 
 
     /*
-     * Search locations and show
-     * suggestions.
+     * Search and show choices.
      */
 
     searchLocations(value);
@@ -965,33 +1171,91 @@ function searchLocora() {
 
 function goToExplore() {
 
-    const saved =
-        localStorage.getItem(
-            "locoraSelectedLocation"
-        );
+    /*
+     * First check memory variable.
+     */
+
+    if (
+        selectedLocation &&
+        Number.isFinite(
+            Number(selectedLocation.latitude)
+        ) &&
+        Number.isFinite(
+            Number(selectedLocation.longitude)
+        )
+    ) {
+
+        saveSelectedLocation();
+
+    } else {
+
+        /*
+         * Try localStorage.
+         */
+
+        const saved =
+            loadSavedLocation();
 
 
-    if (!saved) {
+        if (saved) {
 
-        const status =
-            getStatus();
+            selectedLocation =
+                saved;
 
-        if (status) {
+        } else {
 
-            status.textContent =
-                "Please select a location first.";
+            const status =
+                getStatus();
+
+
+            if (status) {
+
+                status.textContent =
+                    "Please select a location first.";
+            }
+
+
+            return;
         }
-
-        return;
     }
 
 
     /*
-     * Send user to explore page.
+     * Go to explore page.
      */
 
     window.location.href =
         "explore.html";
+}
+
+
+/* =========================================================
+   SAVE LOCATION
+========================================================= */
+
+function saveSelectedLocation() {
+
+    if (!selectedLocation) {
+        return;
+    }
+
+
+    try {
+
+        localStorage.setItem(
+            "locoraSelectedLocation",
+            JSON.stringify(
+                selectedLocation
+            )
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Locora: Could not save location.",
+            error
+        );
+    }
 }
 
 
@@ -1001,42 +1265,214 @@ function goToExplore() {
 
 function loadSavedLocation() {
 
-    const saved =
-        localStorage.getItem(
-            "locoraSelectedLocation"
-        );
-
-
-    if (!saved) {
-        return null;
-    }
-
-
     try {
+
+        const saved =
+            localStorage.getItem(
+                "locoraSelectedLocation"
+            );
+
+
+        if (!saved) {
+            return null;
+        }
+
 
         const location =
             JSON.parse(saved);
 
 
+        const latitude =
+            Number(location.latitude);
+
+
+        const longitude =
+            Number(location.longitude);
+
+
         if (
-            !Number.isFinite(
-                Number(location.latitude)
-            ) ||
-            !Number.isFinite(
-                Number(location.longitude)
-            )
+            !Number.isFinite(latitude) ||
+            !Number.isFinite(longitude)
         ) {
+
+            localStorage.removeItem(
+                "locoraSelectedLocation"
+            );
 
             return null;
         }
 
 
-        return location;
+        return {
 
-    } catch {
+            ...location,
+
+            latitude,
+
+            longitude
+        };
+
+
+    } catch (error) {
+
+        console.error(
+            "Locora: Invalid saved location.",
+            error
+        );
+
+
+        localStorage.removeItem(
+            "locoraSelectedLocation"
+        );
+
 
         return null;
     }
+}
+
+
+/* =========================================================
+   UPDATE SELECTED STATUS
+========================================================= */
+
+function updateSelectedStatus() {
+
+    const status =
+        getStatus();
+
+
+    if (!status || !selectedLocation) {
+        return;
+    }
+
+
+    if (
+        selectedLocation.isCurrentLocation
+    ) {
+
+        status.innerHTML = `
+            📍 Using your current location
+            <strong>
+                ${escapeHtml(
+                    selectedLocation.displayName ||
+                    selectedLocation.name
+                )}
+            </strong>
+        `;
+
+    } else {
+
+        status.innerHTML = `
+            📍 Selected location:
+            <strong>
+                ${escapeHtml(
+                    selectedLocation.displayName ||
+                    selectedLocation.name
+                )}
+            </strong>
+        `;
+    }
+}
+
+
+/* =========================================================
+   UPDATE LOCATION RESULT
+========================================================= */
+
+function updateLocationResult() {
+
+    const locationResult =
+        document.getElementById(
+            "locationResult"
+        );
+
+
+    if (
+        !locationResult ||
+        !selectedLocation
+    ) {
+
+        return;
+    }
+
+
+    locationResult.innerHTML = `
+
+        <strong>
+            📍 ${escapeHtml(
+                selectedLocation.displayName ||
+                selectedLocation.name
+            )}
+        </strong>
+
+        <small>
+            ${Number(
+                selectedLocation.latitude
+            ).toFixed(5)}
+            ,
+            ${Number(
+                selectedLocation.longitude
+            ).toFixed(5)}
+        </small>
+
+    `;
+
+
+    locationResult.classList.add(
+        "visible"
+    );
+}
+
+
+/* =========================================================
+   SHOW CURRENT LOCATION BUTTON
+========================================================= */
+
+function showCurrentLocationButton() {
+
+    const button =
+        document.getElementById(
+            "currentLocationButton"
+        );
+
+
+    if (!button) {
+        return;
+    }
+
+
+    button.style.display =
+        "flex";
+}
+
+
+/* =========================================================
+   RESET CURRENT LOCATION BUTTON
+========================================================= */
+
+function resetCurrentLocationButton() {
+
+    const button =
+        document.getElementById(
+            "currentLocationButton"
+        );
+
+
+    if (!button) {
+        return;
+    }
+
+
+    button.disabled =
+        false;
+
+
+    button.innerHTML =
+        "📍 Use my current location";
+
+
+    button.style.display =
+        "flex";
 }
 
 
@@ -1072,14 +1508,22 @@ document.addEventListener(
         const suggestions =
             getSuggestions();
 
+
         const input =
             getSearchInput();
+
+
+        const button =
+            document.getElementById(
+                "currentLocationButton"
+            );
 
 
         if (
             !suggestions ||
             !input
         ) {
+
             return;
         }
 
@@ -1088,7 +1532,11 @@ document.addEventListener(
             !suggestions.contains(
                 event.target
             ) &&
-            event.target !== input
+            event.target !== input &&
+            (!button ||
+                !button.contains(
+                    event.target
+                ))
         ) {
 
             hideSuggestions();
@@ -1143,6 +1591,7 @@ function addLocationStyles() {
             "locoraLocationStyles"
         )
     ) {
+
         return;
     }
 
@@ -1163,15 +1612,15 @@ function addLocationStyles() {
             width: 100%;
             max-width: 760px;
             margin: 8px auto 0;
-            background: white;
+            background: #ffffff;
             border: 1px solid #e5e7eb;
-            border-radius: 14px;
+            border-radius: 16px;
             overflow: hidden;
             display: none;
             box-shadow:
-                0 12px 35px rgba(0,0,0,0.08);
+                0 15px 40px rgba(0,0,0,0.10);
             position: relative;
-            z-index: 50;
+            z-index: 1000;
         }
 
 
@@ -1184,14 +1633,16 @@ function addLocationStyles() {
             width: 100%;
             border: none;
             border-bottom: 1px solid #f0f1f3;
-            background: white;
-            padding: 14px 16px;
+            background: #ffffff;
+            padding: 15px 16px;
             display: flex;
             align-items: center;
             gap: 13px;
             text-align: left;
             cursor: pointer;
-            transition: background 0.15s;
+            transition:
+                background 0.15s ease,
+                transform 0.15s ease;
         }
 
 
@@ -1205,21 +1656,27 @@ function addLocationStyles() {
         }
 
 
+        .location-suggestion:active {
+            transform: scale(0.995);
+        }
+
+
         .suggestion-icon {
-            width: 38px;
-            height: 38px;
+            width: 42px;
+            height: 42px;
             display: flex;
             align-items: center;
             justify-content: center;
             background: #eff6ff;
-            border-radius: 10px;
+            border-radius: 12px;
             flex-shrink: 0;
-            font-size: 18px;
+            font-size: 19px;
         }
 
 
         .suggestion-content {
             min-width: 0;
+            flex: 1;
             display: flex;
             flex-direction: column;
             gap: 3px;
@@ -1229,6 +1686,7 @@ function addLocationStyles() {
         .suggestion-content strong {
             color: #111827;
             font-size: 14px;
+            font-weight: 700;
         }
 
 
@@ -1242,42 +1700,99 @@ function addLocationStyles() {
         }
 
 
+        .suggestion-type {
+            color: #2563eb;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+
+        .suggestion-arrow {
+            color: #9ca3af;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+
         .location-loading,
         .location-empty,
         .location-error {
-            padding: 18px;
+            padding: 20px;
             text-align: center;
-            color: #6b7280;
             font-size: 14px;
         }
 
 
+        .location-loading {
+            color: #6b7280;
+        }
+
+
+        .location-empty {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            color: #6b7280;
+        }
+
+
+        .location-empty strong {
+            color: #111827;
+        }
+
+
+        .location-empty-icon {
+            font-size: 24px;
+            margin-bottom: 3px;
+        }
+
+
         .location-error {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
             color: #b91c1c;
             background: #fef2f2;
         }
 
 
+        .location-error-icon {
+            font-size: 24px;
+        }
+
+
         .current-location-button {
-            display: block;
-            margin: 12px auto 0;
+            width: 100%;
+            max-width: 760px;
+            margin: 10px auto 0;
             border: 1px solid #dbeafe;
             background: #eff6ff;
             color: #1d4ed8;
-            padding: 11px 16px;
-            border-radius: 10px;
+            padding: 12px 16px;
+            border-radius: 12px;
             font-size: 14px;
             font-weight: 700;
             cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
             transition:
-                background 0.15s,
-                transform 0.15s;
+                background 0.15s ease,
+                transform 0.15s ease;
         }
 
 
         .current-location-button:hover {
             background: #dbeafe;
             transform: translateY(-1px);
+        }
+
+
+        .current-location-button:active {
+            transform: translateY(0);
         }
 
 
@@ -1288,14 +1803,41 @@ function addLocationStyles() {
         }
 
 
+        .location-spinner {
+            width: 15px;
+            height: 15px;
+            border: 2px solid rgba(37,99,235,0.25);
+            border-top-color: #2563eb;
+            border-radius: 50%;
+            display: inline-block;
+            animation:
+                locoraSpin 0.7s linear infinite;
+        }
+
+
+        @keyframes locoraSpin {
+
+            to {
+                transform: rotate(360deg);
+            }
+
+        }
+
+
         @media (max-width: 700px) {
 
             .location-suggestions {
-                width: calc(100% - 0px);
+                max-width: 100%;
             }
 
+
             .current-location-button {
-                width: 100%;
+                max-width: 100%;
+            }
+
+
+            .location-suggestion {
+                padding: 13px;
             }
 
         }
@@ -1310,17 +1852,20 @@ function addLocationStyles() {
 
 
 /* =========================================================
-   SUPPORT OLD BUTTON / NAVIGATION
+   SUPPORT GLOBAL BUTTONS
 ========================================================= */
 
 window.searchLocora =
     searchLocora;
 
+
 window.useCurrentLocation =
     useCurrentLocation;
 
+
 window.goToExplore =
     goToExplore;
+
 
 window.selectLocation =
     selectLocation;
@@ -1332,3 +1877,4 @@ window.selectLocation =
 
 window.getLocoraLocation =
     loadSavedLocation;
+```
