@@ -1,3301 +1,1695 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Locora — Discover What's Around You</title>
-
-    <meta
-        name="description"
-        content="Locora helps you discover useful places, businesses, services, deals, and experiences around any location."
-    >
-
-    <style>
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        html {
-            scroll-behavior: smooth;
-        }
-
-        body {
-            font-family:
-                -apple-system,
-                BlinkMacSystemFont,
-                "Segoe UI",
-                Roboto,
-                Arial,
-                sans-serif;
-
-            background: #f7f8fa;
-            color: #111827;
-        }
-
-        button,
-        input {
-            font: inherit;
-        }
-
-        /* =====================================================
-           NAVIGATION
-        ===================================================== */
-
-        nav {
-            height: 72px;
-            background: white;
-            border-bottom: 1px solid #e5e7eb;
-
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-
-            padding: 0 7%;
-
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        .logo {
-            font-size: 26px;
-            font-weight: 800;
-            letter-spacing: -1px;
-        }
-
-        .logo span {
-            color: #2563eb;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Locora — Find What's Worth Knowing</title>
+
+  <meta
+    name="description"
+    content="Discover places, experiences, deals and hidden gems around you with Locora."
+  >
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap"
+    rel="stylesheet"
+  >
+
+  <style>
+
+    /* =====================================================
+       LOCORA — GEN Z FRONT PAGE
+       ===================================================== */
+
+    :root {
+      --bg: #08090d;
+      --bg-soft: #0e1017;
+      --card: #12141c;
+      --card-hover: #181b25;
+
+      --text: #f7f7fb;
+      --muted: #9297a8;
+
+      --purple: #8b5cf6;
+      --purple-bright: #a78bfa;
+      --pink: #ec4899;
+      --blue: #38bdf8;
+      --green: #34d399;
+      --yellow: #fbbf24;
+
+      --border: rgba(255,255,255,.08);
+
+      --radius: 24px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: "DM Sans", sans-serif;
+      overflow-x: hidden;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    /* =====================================================
+       BACKGROUND
+       ===================================================== */
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: -3;
+
+      background-image:
+        linear-gradient(rgba(255,255,255,.018) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.018) 1px, transparent 1px);
+
+      background-size: 55px 55px;
+
+      mask-image: linear-gradient(
+        to bottom,
+        black,
+        transparent 75%
+      );
+    }
+
+    .ambient {
+      position: fixed;
+      pointer-events: none;
+      z-index: -2;
+      border-radius: 50%;
+      filter: blur(110px);
+      opacity: .18;
+    }
+
+    .ambient.one {
+      width: 450px;
+      height: 450px;
+      background: var(--purple);
+      top: -200px;
+      left: -150px;
+    }
+
+    .ambient.two {
+      width: 400px;
+      height: 400px;
+      background: var(--pink);
+      top: 300px;
+      right: -220px;
+      opacity: .10;
+    }
+
+    /* =====================================================
+       NAV
+       ===================================================== */
+
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+
+      padding: 16px 22px;
+    }
+
+    .nav {
+      width: min(1180px, 100%);
+      margin: auto;
+
+      height: 62px;
+      padding: 0 12px 0 18px;
+
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      background: rgba(13,15,22,.72);
+      backdrop-filter: blur(22px);
+
+      border: 1px solid var(--border);
+      border-radius: 18px;
+
+      box-shadow:
+        0 20px 60px rgba(0,0,0,.22);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+
+      font-family: "Space Grotesk", sans-serif;
+      font-size: 21px;
+      font-weight: 700;
+      letter-spacing: -1px;
+    }
+
+    .brand-mark {
+      width: 34px;
+      height: 34px;
+
+      display: grid;
+      place-items: center;
+
+      border-radius: 11px;
+
+      color: white;
+
+      background:
+        linear-gradient(
+          135deg,
+          var(--purple),
+          var(--pink)
+        );
+
+      box-shadow:
+        0 8px 30px rgba(139,92,246,.35);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 28px;
+      margin-left: 70px;
+    }
+
+    .nav-links a {
+      color: #a8adbc;
+      font-size: 13px;
+      font-weight: 600;
+
+      transition: .2s;
+    }
+
+    .nav-links a:hover {
+      color: white;
+    }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .location {
+      height: 38px;
+      padding: 0 13px;
+
+      display: flex;
+      align-items: center;
+      gap: 7px;
+
+      border: 1px solid var(--border);
+      border-radius: 12px;
+
+      background: rgba(255,255,255,.045);
+      color: #d8dbe5;
+
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .location-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--green);
+
+      box-shadow:
+        0 0 0 5px rgba(52,211,153,.08);
+    }
+
+    .menu {
+      display: none;
 
-        .nav-links {
-            display: flex;
-            align-items: center;
-            gap: 28px;
-        }
+      width: 40px;
+      height: 40px;
 
-        .nav-links a {
-            color: #4b5563;
-            text-decoration: none;
-            font-size: 14px;
-            font-weight: 600;
-        }
+      border: 1px solid var(--border);
+      border-radius: 12px;
 
-        .nav-links a:hover {
-            color: #2563eb;
-        }
+      background: rgba(255,255,255,.04);
+      color: white;
 
-        .nav-button {
-            text-decoration: none;
-            color: white !important;
-            background: #2563eb;
+      font-size: 19px;
+    }
 
-            padding: 10px 17px;
-            border-radius: 10px;
+    /* =====================================================
+       HERO
+       ===================================================== */
 
-            font-weight: 600;
-            font-size: 14px;
-        }
+    .hero {
+      min-height: 820px;
 
-        /* =====================================================
-           HERO
-        ===================================================== */
+      width: min(1180px, calc(100% - 40px));
+      margin: auto;
 
-        .hero {
-            max-width: 1100px;
-            margin: auto;
+      padding-top: 190px;
 
-            padding: 85px 25px 55px;
+      position: relative;
+    }
 
-            text-align: center;
-        }
+    .hero-copy {
+      max-width: 800px;
+    }
 
-        .badge {
-            display: inline-block;
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
 
-            background: #dbeafe;
-            color: #1d4ed8;
+      padding: 8px 12px;
 
-            padding: 8px 14px;
-            border-radius: 999px;
+      border: 1px solid rgba(139,92,246,.25);
+      border-radius: 999px;
 
-            font-size: 13px;
-            font-weight: 700;
+      background: rgba(139,92,246,.08);
 
-            margin-bottom: 22px;
-        }
+      color: #c4b5fd;
 
-        h1 {
-            font-size: clamp(42px, 7vw, 76px);
-            line-height: 1.02;
-            letter-spacing: -3px;
+      font-size: 11px;
+      font-weight: 700;
 
-            max-width: 850px;
-            margin: auto;
-        }
+      letter-spacing: .3px;
+    }
 
-        h1 span {
-            color: #2563eb;
-        }
+    .live-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--green);
+    }
 
-        .hero p {
-            max-width: 700px;
-            margin: 25px auto 35px;
+    h1 {
+      margin-top: 25px;
 
-            color: #6b7280;
+      font-family: "Space Grotesk", sans-serif;
 
-            font-size: 19px;
-            line-height: 1.6;
-        }
+      font-size: clamp(62px, 9vw, 108px);
+      line-height: .91;
 
-        /* =====================================================
-           SEARCH AREA
-        ===================================================== */
+      letter-spacing: -6px;
+      font-weight: 700;
+    }
 
-        .location-search-wrapper {
-            max-width: 760px;
-            margin: auto;
+    h1 .gradient {
+      background:
+        linear-gradient(
+          100deg,
+          #ffffff 0%,
+          #c4b5fd 35%,
+          #f0abfc 70%,
+          #ffffff 100%
+        );
 
-            position: relative;
-            z-index: 20;
-        }
+      -webkit-background-clip: text;
+      background-clip: text;
 
-        .search-box {
-            width: 100%;
+      color: transparent;
+    }
 
-            background: white;
+    .hero-description {
+      max-width: 610px;
 
-            padding: 8px;
+      margin-top: 27px;
 
-            border: 1px solid #e5e7eb;
-            border-radius: 15px;
+      color: var(--muted);
 
-            display: flex;
+      font-size: 17px;
+      line-height: 1.7;
+    }
 
-            box-shadow:
-                0 15px 40px rgba(0, 0, 0, 0.08);
+    /* =====================================================
+       SEARCH
+       ===================================================== */
 
-            transition:
-                border-color 0.2s,
-                box-shadow 0.2s;
-        }
+    .search-wrap {
+      margin-top: 35px;
 
-        .search-box:focus-within {
-            border-color: #93c5fd;
+      width: min(780px, 100%);
 
-            box-shadow:
-                0 15px 40px rgba(37, 99, 235, 0.12);
-        }
+      padding: 7px;
 
-        .search-box input {
-            flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 6px;
 
-            min-width: 0;
+      background: rgba(255,255,255,.055);
 
-            border: none;
-            outline: none;
+      border: 1px solid rgba(255,255,255,.1);
 
-            padding: 15px;
+      border-radius: 19px;
 
-            font-size: 16px;
+      box-shadow:
+        0 20px 80px rgba(0,0,0,.35),
+        0 0 0 1px rgba(139,92,246,.05);
 
-            background: transparent;
-        }
+      transition: .25s;
+    }
 
-        .search-box button {
-            border: none;
+    .search-wrap:focus-within {
+      border-color: rgba(139,92,246,.45);
 
-            background: #2563eb;
-            color: white;
+      box-shadow:
+        0 20px 80px rgba(0,0,0,.4),
+        0 0 0 4px rgba(139,92,246,.08);
+    }
 
-            padding: 0 25px;
+    .search-icon {
+      padding-left: 14px;
 
-            border-radius: 10px;
+      color: #8f95a7;
 
-            font-size: 15px;
-            font-weight: 700;
+      font-size: 23px;
+    }
 
-            cursor: pointer;
+    .search-wrap input {
+      flex: 1;
 
-            transition:
-                background 0.2s,
-                opacity 0.2s;
-        }
+      min-width: 0;
+      height: 54px;
 
-        .search-box button:hover:not(:disabled) {
-            background: #1d4ed8;
-        }
+      border: 0;
+      outline: 0;
 
-        .search-box button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
+      background: transparent;
 
-        /* =====================================================
-           LOCATION SUGGESTIONS
-        ===================================================== */
+      color: white;
 
-        .location-suggestions {
-            width: 100%;
+      font-size: 14px;
+    }
 
-            margin-top: 8px;
+    .search-wrap input::placeholder {
+      color: #727789;
+    }
 
-            background: white;
+    .search-button {
+      height: 54px;
 
-            border: 1px solid #e5e7eb;
+      padding: 0 22px;
 
-            border-radius: 14px;
+      border: 0;
+      border-radius: 14px;
 
-            overflow: hidden;
+      background:
+        linear-gradient(
+          135deg,
+          var(--purple),
+          #9f67ff
+        );
 
-            display: none;
+      color: white;
 
-            box-shadow:
-                0 15px 40px rgba(0, 0, 0, 0.10);
+      font-weight: 700;
+      font-size: 13px;
 
-            text-align: left;
-        }
+      box-shadow:
+        0 8px 25px rgba(139,92,246,.25);
 
-        .location-suggestions.visible {
-            display: block;
-        }
+      transition: .2s;
+    }
 
-        .location-suggestion {
-            width: 100%;
+    .search-button:hover {
+      transform: translateY(-2px);
+    }
 
-            border: none;
-            border-bottom: 1px solid #f0f1f3;
+    /* =====================================================
+       QUICK TAGS
+       ===================================================== */
 
-            background: white;
+    .quick-tags {
+      margin-top: 16px;
 
-            padding: 14px 16px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
 
-            display: flex;
+    .quick-tags button {
+      padding: 8px 12px;
 
-            align-items: center;
+      border: 1px solid var(--border);
+      border-radius: 999px;
 
-            gap: 13px;
+      background: rgba(255,255,255,.035);
 
-            text-align: left;
+      color: #999faf;
 
-            cursor: pointer;
+      font-size: 11px;
+      font-weight: 600;
 
-            transition:
-                background 0.15s;
-        }
+      transition: .2s;
+    }
 
-        .location-suggestion:last-child {
-            border-bottom: none;
-        }
+    .quick-tags button:hover {
+      color: white;
 
-        .location-suggestion:hover {
-            background: #f8fafc;
-        }
+      border-color: rgba(139,92,246,.4);
 
-        .suggestion-icon {
-            width: 40px;
-            height: 40px;
+      background: rgba(139,92,246,.08);
+    }
 
-            display: flex;
-            align-items: center;
-            justify-content: center;
+    /* =====================================================
+       FLOATING DISCOVERY CARDS
+       ===================================================== */
 
-            background: #eff6ff;
+    .floating {
+      position: absolute;
 
-            border-radius: 10px;
+      background:
+        rgba(18,20,28,.88);
 
-            flex-shrink: 0;
+      backdrop-filter: blur(18px);
 
-            font-size: 18px;
-        }
+      border: 1px solid var(--border);
 
-        .suggestion-content {
-            min-width: 0;
+      box-shadow:
+        0 30px 80px rgba(0,0,0,.3);
 
-            display: flex;
-            flex-direction: column;
+      border-radius: 18px;
 
-            gap: 3px;
-        }
+      animation: float 5s ease-in-out infinite;
+    }
 
-        .suggestion-content strong {
-            color: #111827;
+    .float-one {
+      right: 25px;
+      top: 240px;
 
-            font-size: 14px;
-        }
+      width: 230px;
 
-        .suggestion-content small {
-            color: #6b7280;
+      padding: 10px;
 
-            font-size: 12px;
+      transform: rotate(4deg);
+    }
 
-            line-height: 1.4;
+    .float-two {
+      right: 210px;
+      top: 470px;
 
-            overflow: hidden;
+      width: 215px;
 
-            text-overflow: ellipsis;
+      padding: 14px;
 
-            white-space: nowrap;
-        }
+      transform: rotate(-4deg);
 
-        .location-loading,
-        .location-empty,
-        .location-error {
-            padding: 18px;
+      animation-delay: -2s;
+    }
 
-            text-align: center;
+    .float-image {
+      height: 120px;
 
-            color: #6b7280;
+      border-radius: 12px;
 
-            font-size: 14px;
-        }
+      background:
+        linear-gradient(
+          135deg,
+          #5b21b6,
+          #ec4899
+        );
 
-        .location-error {
-            color: #b91c1c;
+      display: grid;
+      place-items: center;
 
-            background: #fef2f2;
-        }
+      font-size: 38px;
+    }
 
-        /* =====================================================
-           CURRENT LOCATION
-        ===================================================== */
+    .float-info {
+      padding: 11px 4px 4px;
+    }
 
-        .current-location-button {
-            width: 100%;
+    .float-title {
+      font-size: 13px;
+      font-weight: 700;
+    }
 
-            margin-top: 8px;
+    .float-sub {
+      margin-top: 3px;
 
-            border: 1px solid #dbeafe;
+      color: var(--muted);
 
-            background: white;
+      font-size: 10px;
+    }
 
-            color: #1d4ed8;
+    .mini-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
 
-            padding: 13px 16px;
+    .mini-icon {
+      width: 42px;
+      height: 42px;
 
-            border-radius: 12px;
+      display: grid;
+      place-items: center;
 
-            font-size: 14px;
+      border-radius: 12px;
 
-            font-weight: 700;
+      background:
+        rgba(139,92,246,.12);
 
-            cursor: pointer;
+      font-size: 20px;
+    }
 
-            box-shadow:
-                0 5px 18px rgba(0, 0, 0, 0.05);
+    .mini-title {
+      font-size: 12px;
+      font-weight: 700;
+    }
 
-            transition:
-                background 0.15s,
-                border-color 0.15s,
-                transform 0.15s;
-        }
+    .mini-text {
+      margin-top: 2px;
 
-        .current-location-button:hover {
-            background: #eff6ff;
+      color: var(--muted);
 
-            border-color: #93c5fd;
+      font-size: 10px;
+    }
 
-            transform: translateY(-1px);
-        }
+    @keyframes float {
+      0%,100% {
+        translate: 0 0;
+      }
 
-        .current-location-button:disabled {
-            opacity: 0.6;
+      50% {
+        translate: 0 -10px;
+      }
+    }
 
-            cursor: wait;
+    /* =====================================================
+       DISCOVERY STRIP
+       ===================================================== */
 
-            transform: none;
-        }
+    .discover-strip {
+      margin-top: 20px;
 
-        /* =====================================================
-           STATUS
-        ===================================================== */
+      display: flex;
+      align-items: center;
+      gap: 12px;
 
-        .search-status {
-            min-height: 24px;
+      color: #686e7e;
 
-            margin-top: 15px;
+      font-size: 10px;
+      font-weight: 700;
 
-            color: #6b7280;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+    }
 
-            font-size: 14px;
-        }
+    .discover-strip::after {
+      content: "";
 
-        /* =====================================================
-           SELECTED LOCATION
-        ===================================================== */
+      width: 70px;
+      height: 1px;
 
-        .location-result {
-            max-width: 760px;
+      background: rgba(255,255,255,.12);
+    }
 
-            margin: 15px auto 0;
+    /* =====================================================
+       CATEGORY SECTION
+       ===================================================== */
 
-            background: white;
+    .section {
+      width: min(1180px, calc(100% - 40px));
+      margin: auto;
 
-            border: 1px solid #bfdbfe;
+      padding: 80px 0;
+    }
 
-            border-radius: 14px;
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
 
-            padding: 16px;
+      margin-bottom: 25px;
+    }
 
-            text-align: left;
+    .section-label {
+      color: #8e94a5;
 
-            display: none;
-        }
+      font-size: 10px;
+      font-weight: 800;
 
-        .location-result.visible {
-            display: block;
-        }
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
 
-        .location-result strong {
-            display: block;
+    .section-title {
+      margin-top: 6px;
 
-            margin-bottom: 5px;
-        }
+      font-family: "Space Grotesk", sans-serif;
 
-        .location-result small {
-            color: #6b7280;
-        }
+      font-size: 34px;
 
-        /* =====================================================
-           SECTIONS
-        ===================================================== */
+      letter-spacing: -1.8px;
+    }
 
-        .section {
-            max-width: 1100px;
-            margin: auto;
+    .see-all {
+      color: var(--purple-bright);
 
-            padding: 35px 25px 75px;
-        }
+      font-size: 12px;
+      font-weight: 700;
+    }
 
-        .section-title {
-            text-align: center;
+    .categories {
+      display: grid;
 
-            margin-bottom: 30px;
-        }
+      grid-template-columns:
+        repeat(8, 1fr);
 
-        .section-title h2 {
-            font-size: 34px;
+      gap: 10px;
+    }
 
-            letter-spacing: -1px;
-        }
+    .category {
+      min-height: 125px;
 
-        .section-title p {
-            color: #6b7280;
+      padding: 16px 10px;
 
-            margin-top: 10px;
-        }
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
 
-        /* =====================================================
-           CATEGORIES
-        ===================================================== */
+      gap: 10px;
 
-        .category-grid {
-            display: grid;
+      background: var(--card);
 
-            grid-template-columns:
-                repeat(auto-fit, minmax(150px, 1fr));
+      border: 1px solid var(--border);
 
-            gap: 14px;
+      border-radius: 18px;
 
-            max-width: 900px;
+      color: white;
 
-            margin: 0 auto;
-        }
+      transition: .25s;
+    }
 
-        .category-button {
-            background: white;
+    .category:hover {
+      transform: translateY(-5px);
 
-            border: 1px solid #e5e7eb;
+      background: var(--card-hover);
 
-            border-radius: 15px;
+      border-color: rgba(139,92,246,.3);
+    }
 
-            padding: 20px 15px;
+    .category-icon {
+      width: 47px;
+      height: 47px;
 
-            cursor: pointer;
+      display: grid;
+      place-items: center;
 
-            transition:
-                transform 0.2s,
-                box-shadow 0.2s,
-                border-color 0.2s;
+      border-radius: 15px;
 
-            color: #111827;
-        }
+      background:
+        linear-gradient(
+          145deg,
+          rgba(139,92,246,.15),
+          rgba(236,72,153,.08)
+        );
 
-        .category-button:hover {
-            transform: translateY(-3px);
+      font-size: 22px;
+    }
 
-            box-shadow:
-                0 10px 25px rgba(0, 0, 0, 0.07);
+    .category span {
+      font-size: 11px;
+      font-weight: 700;
+    }
 
-            border-color: #93c5fd;
-        }
+    /* =====================================================
+       TRENDING
+       ===================================================== */
 
-        .category-button.active {
-            border-color: #2563eb;
+    .trending {
+      position: relative;
 
-            background: #eff6ff;
-        }
+      padding: 80px 0 110px;
 
-        .category-icon {
-            display: block;
+      border-top: 1px solid rgba(255,255,255,.05);
+    }
 
-            font-size: 28px;
+    .trending-inner {
+      width: min(1180px, calc(100% - 40px));
+      margin: auto;
+    }
 
-            margin-bottom: 9px;
-        }
+    .trending-grid {
+      display: grid;
 
-        .category-name {
-            display: block;
+      grid-template-columns:
+        1.3fr .85fr .85fr;
 
-            font-size: 14px;
+      gap: 14px;
+    }
 
-            font-weight: 700;
-        }
+    .trend-card {
+      min-height: 320px;
 
-        /* =====================================================
-           RESULTS
-        ===================================================== */
+      position: relative;
 
-        .results-section {
-            max-width: 1100px;
+      overflow: hidden;
 
-            margin: auto;
+      padding: 20px;
 
-            padding: 0 25px 80px;
+      display: flex;
+      flex-direction: column;
+      justify-content: end;
 
-            display: none;
-        }
+      border-radius: 24px;
 
-        .results-section.visible {
-            display: block;
-        }
+      border: 1px solid var(--border);
 
-        .results-header {
-            margin-bottom: 20px;
-        }
+      background:
+        linear-gradient(
+          145deg,
+          #191329,
+          #101119
+        );
 
-        .results-header h2 {
-            font-size: 28px;
+      transition: .3s;
+    }
 
-            letter-spacing: -0.8px;
-        }
+    .trend-card:hover {
+      transform: translateY(-5px);
 
-        .results-header p {
-            color: #6b7280;
+      border-color:
+        rgba(139,92,246,.3);
+    }
 
-            margin-top: 6px;
+    .trend-card.large {
+      min-height: 420px;
+    }
 
-            font-size: 14px;
-        }
+    .trend-card::before {
+      content: "";
 
-        .results-grid {
-            display: grid;
+      position: absolute;
 
-            grid-template-columns:
-                repeat(auto-fit, minmax(260px, 1fr));
+      inset: 0;
 
-            gap: 17px;
-        }
+      background:
+        radial-gradient(
+          circle at 75% 25%,
+          rgba(139,92,246,.45),
+          transparent 35%
+        );
 
-        .place-card {
-            background: white;
+      opacity: .7;
+    }
 
-            border: 1px solid #e5e7eb;
+    .trend-card.pink::before {
+      background:
+        radial-gradient(
+          circle at 70% 20%,
+          rgba(236,72,153,.4),
+          transparent 35%
+        );
+    }
 
-            border-radius: 17px;
+    .trend-card.blue::before {
+      background:
+        radial-gradient(
+          circle at 70% 20%,
+          rgba(56,189,248,.35),
+          transparent 35%
+        );
+    }
 
-            padding: 22px;
+    .trend-emoji {
+      position: absolute;
 
-            transition:
-                transform 0.2s,
-                box-shadow 0.2s;
-        }
+      top: 28px;
+      right: 28px;
 
-        .place-card:hover {
-            transform: translateY(-3px);
+      font-size: 55px;
 
-            box-shadow:
-                0 12px 30px rgba(0, 0, 0, 0.07);
-        }
+      filter:
+        drop-shadow(0 15px 25px rgba(0,0,0,.3));
+    }
 
-        .place-top {
-            display: flex;
+    .trend-badge {
+      width: fit-content;
 
-            align-items: flex-start;
+      padding: 6px 9px;
 
-            justify-content: space-between;
+      border-radius: 999px;
 
-            gap: 12px;
-        }
+      background: rgba(255,255,255,.08);
 
-        .place-icon {
-            width: 44px;
-            height: 44px;
+      border: 1px solid rgba(255,255,255,.08);
 
-            display: flex;
+      color: #d5d8e1;
 
-            align-items: center;
-            justify-content: center;
+      font-size: 9px;
+      font-weight: 800;
 
-            background: #eff6ff;
+      text-transform: uppercase;
+      letter-spacing: .8px;
+    }
 
-            border-radius: 11px;
+    .trend-card h3 {
+      position: relative;
 
-            font-size: 22px;
+      margin-top: 10px;
 
-            flex-shrink: 0;
-        }
+      font-family: "Space Grotesk", sans-serif;
 
-        .place-distance {
-            background: #f3f4f6;
+      font-size: 25px;
 
-            color: #4b5563;
+      letter-spacing: -1px;
+    }
 
-            padding: 5px 8px;
+    .trend-card p {
+      position: relative;
 
-            border-radius: 999px;
+      margin-top: 5px;
 
-            font-size: 11px;
+      max-width: 300px;
 
-            font-weight: 700;
+      color: #8e94a5;
 
-            white-space: nowrap;
-        }
+      font-size: 11px;
+    }
 
-        .place-card h3 {
-            font-size: 18px;
+    /* =====================================================
+       CTA
+       ===================================================== */
 
-            margin-top: 15px;
+    .cta {
+      width: min(1180px, calc(100% - 40px));
+      margin: 20px auto 100px;
 
-            margin-bottom: 6px;
-        }
+      padding: 80px 30px;
 
-        .place-type {
-            color: #2563eb;
+      position: relative;
 
-            font-size: 12px;
+      overflow: hidden;
 
-            font-weight: 700;
+      text-align: center;
 
-            text-transform: capitalize;
-        }
+      border: 1px solid var(--border);
 
-        .place-address {
-            color: #6b7280;
+      border-radius: 30px;
 
-            font-size: 13px;
+      background:
+        radial-gradient(
+          circle at 50% 0%,
+          rgba(139,92,246,.22),
+          transparent 55%
+        ),
+        #0e1017;
+    }
 
-            line-height: 1.5;
+    .cta h2 {
+      position: relative;
 
-            margin-top: 12px;
-        }
+      font-family: "Space Grotesk", sans-serif;
 
-        .place-hours {
-            color: #6b7280;
+      font-size: clamp(40px, 6vw, 70px);
 
-            font-size: 12px;
+      line-height: .95;
 
-            margin-top: 9px;
-        }
+      letter-spacing: -4px;
+    }
 
-        .place-actions {
-            display: flex;
+    .cta p {
+      position: relative;
 
-            gap: 8px;
+      margin: 18px auto 25px;
 
-            margin-top: 17px;
-        }
+      color: var(--muted);
 
-        .place-actions a {
-            flex: 1;
+      font-size: 14px;
+    }
 
-            text-align: center;
+    .cta-button {
+      position: relative;
 
-            text-decoration: none;
+      height: 50px;
 
-            padding: 9px 10px;
+      padding: 0 22px;
 
-            border-radius: 9px;
+      border: 0;
+      border-radius: 14px;
 
-            font-size: 12px;
+      background: white;
+      color: #090a0e;
 
-            font-weight: 700;
-        }
+      font-weight: 800;
+      font-size: 12px;
 
-        .website-link {
-            background: #2563eb;
+      transition: .2s;
+    }
 
-            color: white;
-        }
+    .cta-button:hover {
+      transform: translateY(-3px);
 
-        .map-link {
-            background: #f3f4f6;
+      box-shadow:
+        0 15px 40px rgba(255,255,255,.12);
+    }
 
-            color: #111827;
-        }
+    /* =====================================================
+       FOOTER
+       ===================================================== */
 
-        .empty-state,
-        .loading-state,
-        .error-state {
-            background: white;
+    footer {
+      width: min(1180px, calc(100% - 40px));
 
-            border: 1px solid #e5e7eb;
+      margin: auto;
 
-            border-radius: 16px;
+      padding: 0 0 40px;
 
-            padding: 35px 20px;
+      color: #777d8d;
+    }
 
-            text-align: center;
+    .footer-line {
+      height: 1px;
 
-            color: #6b7280;
-        }
+      background: rgba(255,255,255,.07);
 
-        .error-state {
-            color: #b91c1c;
+      margin-bottom: 25px;
+    }
 
-            background: #fef2f2;
+    .footer-content {
+      display: flex;
 
-            border-color: #fecaca;
-        }
+      justify-content: space-between;
+      align-items: center;
+    }
 
-        /* =====================================================
-           WHY LOCORA
-        ===================================================== */
+    .footer-brand {
+      font-family: "Space Grotesk", sans-serif;
 
-        .cards {
-            display: grid;
+      color: white;
 
-            grid-template-columns:
-                repeat(auto-fit, minmax(210px, 1fr));
+      font-size: 16px;
+      font-weight: 700;
+    }
 
-            gap: 18px;
-        }
+    .footer-content span {
+      font-size: 10px;
+    }
 
-        .card {
-            background: white;
+    /* =====================================================
+       MOBILE
+       ===================================================== */
 
-            padding: 28px;
+    @media (max-width: 1000px) {
 
-            border-radius: 18px;
+      .nav-links {
+        margin-left: 0;
+      }
 
-            border: 1px solid #e5e7eb;
+      .floating {
+        display: none;
+      }
 
-            transition:
-                transform 0.2s,
-                box-shadow 0.2s;
-        }
+      .categories {
+        grid-template-columns:
+          repeat(4, 1fr);
+      }
 
-        .card:hover {
-            transform: translateY(-5px);
+    }
 
-            box-shadow:
-                0 15px 35px rgba(0, 0, 0, 0.08);
-        }
+    @media (max-width: 700px) {
 
-        .icon {
-            width: 48px;
-            height: 48px;
+      header {
+        padding: 10px;
+      }
 
-            display: flex;
+      .nav {
+        height: 58px;
+      }
 
-            align-items: center;
-            justify-content: center;
+      .nav-links,
+      .location {
+        display: none;
+      }
 
-            background: #eff6ff;
+      .menu {
+        display: block;
+      }
 
-            border-radius: 12px;
+      .hero {
+        width: calc(100% - 28px);
 
-            font-size: 23px;
+        padding-top: 145px;
 
-            margin-bottom: 18px;
-        }
+        min-height: 720px;
+      }
 
-        .card h3 {
-            font-size: 19px;
+      h1 {
+        font-size: 59px;
+        letter-spacing: -4px;
+      }
 
-            margin-bottom: 8px;
-        }
+      .hero-description {
+        font-size: 14px;
+      }
 
-        .card p {
-            color: #6b7280;
+      .search-wrap {
+        padding: 6px;
+      }
 
-            line-height: 1.5;
+      .search-wrap input {
+        font-size: 12px;
+      }
 
-            font-size: 14px;
-        }
+      .search-button {
+        padding: 0 15px;
+      }
 
-        /* =====================================================
-           HOW IT WORKS
-        ===================================================== */
+      .quick-tags {
+        overflow-x: auto;
+        flex-wrap: nowrap;
 
-        .how-section {
-            max-width: 1100px;
+        padding-bottom: 5px;
+      }
 
-            margin: auto;
+      .quick-tags button {
+        flex-shrink: 0;
+      }
 
-            padding: 10px 25px 75px;
-        }
+      .section {
+        width: calc(100% - 28px);
+      }
 
-        .steps {
-            display: grid;
+      .categories {
+        grid-template-columns:
+          repeat(2, 1fr);
+      }
 
-            grid-template-columns:
-                repeat(3, 1fr);
+      .category {
+        min-height: 110px;
+      }
 
-            gap: 20px;
+      .trending-inner {
+        width: calc(100% - 28px);
+      }
 
-            max-width: 900px;
+      .trending-grid {
+        grid-template-columns: 1fr;
+      }
 
-            margin: auto;
-        }
+      .trend-card,
+      .trend-card.large {
+        min-height: 260px;
+      }
 
-        .step {
-            background: white;
+      .section-head {
+        align-items: start;
+      }
 
-            border: 1px solid #e5e7eb;
+      .section-title {
+        font-size: 28px;
+      }
 
-            border-radius: 18px;
+      .cta {
+        width: calc(100% - 28px);
 
-            padding: 28px;
-        }
+        padding: 65px 20px;
 
-        .step-number {
-            width: 42px;
-            height: 42px;
+        margin-bottom: 60px;
+      }
 
-            display: flex;
+      .cta h2 {
+        font-size: 45px;
+        letter-spacing: -3px;
+      }
 
-            align-items: center;
-            justify-content: center;
+      .footer-content {
+        flex-direction: column;
+        align-items: start;
+        gap: 10px;
+      }
 
-            background: #2563eb;
+    }
 
-            color: white;
-
-            border-radius: 50%;
-
-            font-weight: 800;
-
-            margin-bottom: 18px;
-        }
-
-        .step h3 {
-            margin-bottom: 8px;
-        }
-
-        .step p {
-            color: #6b7280;
-
-            line-height: 1.5;
-
-            font-size: 14px;
-        }
-
-        /* =====================================================
-           CTA
-        ===================================================== */
-
-        .cta {
-            background: #111827;
-
-            color: white;
-
-            max-width: 1050px;
-
-            margin: 20px auto 80px;
-
-            padding: 55px 30px;
-
-            border-radius: 24px;
-
-            text-align: center;
-        }
-
-        .cta h2 {
-            font-size: 35px;
-
-            margin-bottom: 12px;
-        }
-
-        .cta p {
-            color: #d1d5db;
-
-            margin-bottom: 25px;
-        }
-
-        .cta button {
-            border: none;
-
-            background: white;
-
-            color: #111827;
-
-            padding: 13px 22px;
-
-            border-radius: 10px;
-
-            font-weight: 700;
-
-            cursor: pointer;
-        }
-
-        /* =====================================================
-           FOOTER
-        ===================================================== */
-
-        footer {
-            text-align: center;
-
-            padding: 35px;
-
-            color: #9ca3af;
-
-            font-size: 14px;
-        }
-
-        /* =====================================================
-           MOBILE
-        ===================================================== */
-
-        @media (max-width: 700px) {
-
-            nav {
-                padding: 0 20px;
-            }
-
-            .nav-links {
-                gap: 10px;
-            }
-
-            .nav-links a:not(.nav-button) {
-                display: none;
-            }
-
-            .nav-button {
-                padding: 9px 13px;
-            }
-
-            .hero {
-                padding-top: 65px;
-            }
-
-            .search-box {
-                flex-direction: column;
-
-                gap: 8px;
-            }
-
-            .search-box button {
-                height: 48px;
-            }
-
-            h1 {
-                letter-spacing: -2px;
-            }
-
-            .steps {
-                grid-template-columns: 1fr;
-            }
-
-            .current-location-button {
-                padding: 14px;
-            }
-        }
-
-    </style>
+  </style>
 </head>
-
 
 <body>
 
+  <div class="ambient one"></div>
+  <div class="ambient two"></div>
 
-<!-- =========================================================
-     NAV
-========================================================= -->
+  <!-- =====================================================
+       NAVIGATION
+       ===================================================== -->
 
-<nav>
+  <header>
 
-    <div class="logo">
-        Loc<span>ora</span>
-    </div>
+    <nav class="nav">
 
-    <div class="nav-links">
+      <a href="index.html" class="brand">
+        <span class="brand-mark">L</span>
+        <span>locora</span>
+      </a>
 
-        <a href="#how">
-            How it works
-        </a>
+      <div class="nav-links">
 
-        <a href="#discover">
-            Explore
-        </a>
+        <a href="#discover">Discover</a>
 
-        <a
-            href="#discover"
-            class="nav-button"
+        <a href="explore.html">Explore</a>
+
+        <a href="#trending">Trending</a>
+
+        <a href="#deals">Deals</a>
+
+      </div>
+
+      <div class="nav-right">
+
+        <button
+          class="location"
+          onclick="useLocation()"
         >
-            Discover
-        </a>
+          <span class="location-dot"></span>
+          <span id="locationText">Near you</span>
+        </button>
 
-    </div>
+        <button
+          class="menu"
+          onclick="alert('Menu coming soon')"
+        >
+          ☰
+        </button>
 
-</nav>
+      </div>
 
+    </nav>
 
-<!-- =========================================================
-     HERO
-========================================================= -->
-
-<section class="hero">
-
-    <div class="badge">
-        🌎 Discover more around you
-    </div>
-
-
-    <h1>
-
-        Find what's
-
-        <span>
-            worth knowing.
-        </span>
-
-    </h1>
+  </header>
 
 
-    <p>
+  <!-- =====================================================
+       HERO
+       ===================================================== -->
 
-        Search for places, services, businesses,
-        experiences, and opportunities around any
-        location.
+  <main>
 
-    </p>
+    <section class="hero" id="discover">
+
+      <div class="hero-copy">
+
+        <div class="pill">
+          <span class="live-dot"></span>
+          Discovering what's around you
+        </div>
+
+        <h1>
+          Find what's
+          <br>
+          <span class="gradient">worth knowing.</span>
+        </h1>
+
+        <p class="hero-description">
+          Places. Experiences. Deals. Services.
+          Discover the stuff around you that you
+          actually want to know about.
+        </p>
+
+
+        <!-- SEARCH -->
+
+        <div class="search-wrap">
+
+          <span class="search-icon">⌕</span>
+
+          <input
+            id="mainSearch"
+            type="text"
+            placeholder="Try “best pizza near me”..."
+            autocomplete="off"
+          >
+
+          <button
+            class="search-button"
+            onclick="searchLocora()"
+          >
+            Search
+          </button>
+
+        </div>
+
+
+        <!-- QUICK SEARCH -->
+
+        <div class="quick-tags">
+
+          <button onclick="quickSearch('Restaurants')">
+            🍔 Food
+          </button>
+
+          <button onclick="quickSearch('Coffee')">
+            ☕ Coffee
+          </button>
+
+          <button onclick="quickSearch('Things to do')">
+            🎯 Things to do
+          </button>
+
+          <button onclick="quickSearch('Shopping')">
+            🛍️ Shopping
+          </button>
+
+          <button onclick="quickSearch('Services')">
+            🛠️ Services
+          </button>
+
+          <button onclick="quickSearch('Hotels')">
+            🏨 Hotels
+          </button>
+
+        </div>
+
+
+        <div class="discover-strip">
+          LOCAL DISCOVERY
+        </div>
+
+      </div>
+
+
+      <!-- FLOATING CARDS -->
+
+      <div class="floating float-one">
+
+        <div class="float-image">
+          🍜
+        </div>
+
+        <div class="float-info">
+
+          <div class="float-title">
+            Hidden gem unlocked
+          </div>
+
+          <div class="float-sub">
+            ⭐ 4.9 · 0.8 miles away
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <div class="floating float-two">
+
+        <div class="mini-row">
+
+          <div class="mini-icon">
+            🔥
+          </div>
+
+          <div>
+
+            <div class="mini-title">
+              Trending nearby
+            </div>
+
+            <div class="mini-text">
+              24 people exploring
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
 
 
     <!-- =====================================================
-         LOCATION SEARCH
-    ===================================================== -->
+         CATEGORIES
+         ===================================================== -->
 
-    <div class="location-search-wrapper">
+    <section class="section">
 
+      <div class="section-head">
 
-        <div class="search-box">
+        <div>
 
-            <input
-                id="searchInput"
-                type="text"
-                placeholder="Search a city or location..."
-                autocomplete="off"
-                spellcheck="false"
-            >
+          <div class="section-label">
+            Explore
+          </div>
 
-
-            <button
-                id="searchButton"
-                type="button"
-                onclick="searchLocora()"
-                disabled
-            >
-                Search
-            </button>
+          <h2 class="section-title">
+            What's your vibe?
+          </h2>
 
         </div>
-
-
-        <!-- LOCATION SUGGESTIONS -->
-
-        <div
-            id="locationSuggestions"
-            class="location-suggestions"
-        ></div>
-
-
-        <!-- CURRENT LOCATION -->
-
-        <button
-            id="currentLocationButton"
-            type="button"
-            class="current-location-button"
-        >
-            📍 Use my current location
-        </button>
-
-
-    </div>
-
-
-    <div
-        id="searchStatus"
-        class="search-status"
-    ></div>
-
-
-    <div
-        id="locationResult"
-        class="location-result"
-    ></div>
-
-</section>
-
-
-<!-- =========================================================
-     DISCOVER
-========================================================= -->
-
-<section
-    class="section"
-    id="discover"
->
-
-    <div class="section-title">
-
-        <h2>
-            Explore Locora
-        </h2>
-
-        <p>
-            Choose what you want to discover around your selected location.
-        </p>
-
-    </div>
-
-
-    <div class="category-grid">
-
-
-        <button
-            class="category-button"
-            data-category="restaurant"
-            onclick="searchCategory('restaurant', 'Restaurants', '🍽️', this)"
-        >
-
-            <span class="category-icon">
-                🍽️
-            </span>
-
-            <span class="category-name">
-                Restaurants
-            </span>
-
-        </button>
-
-
-        <button
-            class="category-button"
-            data-category="cafe"
-            onclick="searchCategory('cafe', 'Coffee', '☕', this)"
-        >
-
-            <span class="category-icon">
-                ☕
-            </span>
-
-            <span class="category-name">
-                Coffee
-            </span>
-
-        </button>
-
-
-        <button
-            class="category-button"
-            data-category="hotel"
-            onclick="searchCategory('hotel', 'Hotels', '🏨', this)"
-        >
-
-            <span class="category-icon">
-                🏨
-            </span>
-
-            <span class="category-name">
-                Hotels
-            </span>
-
-        </button>
-
-
-        <button
-            class="category-button"
-            data-category="shop"
-            onclick="searchCategory('shop', 'Shopping', '🛍️', this)"
-        >
-
-            <span class="category-icon">
-                🛍️
-            </span>
-
-            <span class="category-name">
-                Shopping
-            </span>
-
-        </button>
-
-
-        <button
-            class="category-button"
-            data-category="attraction"
-            onclick="searchCategory('attraction', 'Things to Do', '🎯', this)"
-        >
-
-            <span class="category-icon">
-                🎯
-            </span>
-
-            <span class="category-name">
-                Things to Do
-            </span>
-
-        </button>
-
-
-        <button
-            class="category-button"
-            data-category="service"
-            onclick="searchCategory('service', 'Services', '🛠️', this)"
-        >
-
-            <span class="category-icon">
-                🛠️
-            </span>
-
-            <span class="category-name">
-                Services
-            </span>
-
-        </button>
-
-
-    </div>
-
-</section>
-
-
-<!-- =========================================================
-     RESULTS
-========================================================= -->
-
-<section
-    id="resultsSection"
-    class="results-section"
->
-
-    <div class="results-header">
-
-        <h2 id="resultsTitle">
-            Results
-        </h2>
-
-        <p id="resultsSubtitle">
-            Search for a category to see nearby places.
-        </p>
-
-    </div>
-
-
-    <div
-        id="resultsContainer"
-        class="results-grid"
-    ></div>
-
-</section>
-
-
-<!-- =========================================================
-     WHY LOCORA
-========================================================= -->
-
-<section class="section">
-
-    <div class="section-title">
-
-        <h2>
-            Why Locora?
-        </h2>
-
-        <p>
-            Everything you need, closer to you.
-        </p>
-
-    </div>
-
-
-    <div class="cards">
-
-
-        <div class="card">
-
-            <div class="icon">
-                📍
-            </div>
-
-            <h3>
-                Local Places
-            </h3>
-
-            <p>
-                Discover restaurants, shops,
-                entertainment, and useful places
-                around your searched location.
-            </p>
-
-        </div>
-
-
-        <div class="card">
-
-            <div class="icon">
-                💰
-            </div>
-
-            <h3>
-                Deals
-            </h3>
-
-            <p>
-                Find interesting deals and
-                opportunities without searching
-                through dozens of websites.
-            </p>
-
-        </div>
-
-
-        <div class="card">
-
-            <div class="icon">
-                🛠️
-            </div>
-
-            <h3>
-                Services
-            </h3>
-
-            <p>
-                Find people and businesses that
-                offer the services you need.
-            </p>
-
-        </div>
-
-
-        <div class="card">
-
-            <div class="icon">
-                ⭐
-            </div>
-
-            <h3>
-                Experiences
-            </h3>
-
-            <p>
-                Discover things to do and
-                experiences worth trying nearby.
-            </p>
-
-        </div>
-
-
-    </div>
-
-</section>
-
-
-<!-- =========================================================
-     HOW IT WORKS
-========================================================= -->
-
-<section
-    class="how-section"
-    id="how"
->
-
-    <div class="section-title">
-
-        <h2>
-            How Locora works
-        </h2>
-
-        <p>
-            Discover places in three simple steps.
-        </p>
-
-    </div>
-
-
-    <div class="steps">
-
-
-        <div class="step">
-
-            <div class="step-number">
-                1
-            </div>
-
-            <h3>
-                Search
-            </h3>
-
-            <p>
-                Enter a city or location you want
-                to explore.
-            </p>
-
-        </div>
-
-
-        <div class="step">
-
-            <div class="step-number">
-                2
-            </div>
-
-            <h3>
-                Choose
-            </h3>
-
-            <p>
-                Select the exact location from
-                Locora's suggestions.
-            </p>
-
-        </div>
-
-
-        <div class="step">
-
-            <div class="step-number">
-                3
-            </div>
-
-            <h3>
-                Explore
-            </h3>
-
-            <p>
-                Browse real places, distances,
-                addresses, websites, and more.
-            </p>
-
-        </div>
-
-
-    </div>
-
-</section>
-
-
-<!-- =========================================================
-     CTA
-========================================================= -->
-
-<section class="cta">
-
-    <h2>
-        Your area has more to offer.
-    </h2>
-
-    <p>
-        Locora makes it easier to find it.
-    </p>
-
-    <button
-        onclick="focusSearch()"
-    >
-        Start Exploring
-    </button>
-
-</section>
-
-
-<footer>
-
-    © 2026 Locora. Discover more.
-
-</footer>
-
-
-<script>
-
-/* =========================================================
-   LOCORA API
-========================================================= */
-
-const API_URL =
-    "https://locora-api.onrender.com";
-
-
-/* =========================================================
-   STATE
-========================================================= */
-
-let selectedLocation = null;
-
-let searchTimer = null;
-
-let searchRequestId = 0;
-
-
-/* =========================================================
-   ELEMENTS
-========================================================= */
-
-const input =
-    document.getElementById(
-        "searchInput"
-    );
-
-const searchButton =
-    document.getElementById(
-        "searchButton"
-    );
-
-const suggestions =
-    document.getElementById(
-        "locationSuggestions"
-    );
-
-const currentLocationButton =
-    document.getElementById(
-        "currentLocationButton"
-    );
-
-const status =
-    document.getElementById(
-        "searchStatus"
-    );
-
-const locationResult =
-    document.getElementById(
-        "locationResult"
-    );
-
-
-/* =========================================================
-   INITIALIZE
-========================================================= */
-
-document.addEventListener(
-    "DOMContentLoaded",
-    () => {
-
-        loadSavedLocation();
-
-    }
-);
-
-
-/* =========================================================
-   INPUT TYPING
-========================================================= */
-
-input.addEventListener(
-    "input",
-    () => {
-
-        const value =
-            input.value.trim();
-
-
-        /*
-         * If the user changes the text
-         * after selecting a location,
-         * remove the old selection.
-         */
-
-        if (
-            selectedLocation &&
-            value !== selectedLocation.name &&
-            value !== selectedLocation.displayName
-        ) {
-
-            selectedLocation = null;
-
-            localStorage.removeItem(
-                "locoraSelectedLocation"
-            );
-
-            searchButton.disabled = true;
-
-            locationResult.classList.remove(
-                "visible"
-            );
-        }
-
-
-        clearTimeout(
-            searchTimer
-        );
-
-
-        if (
-            value.length < 2
-        ) {
-
-            hideSuggestions();
-
-            return;
-        }
-
-
-        searchTimer =
-            setTimeout(
-                () => {
-
-                    searchLocations(
-                        value
-                    );
-
-                },
-                300
-            );
-
-    }
-);
-
-
-/* =========================================================
-   INPUT FOCUS
-========================================================= */
-
-input.addEventListener(
-    "focus",
-    () => {
-
-        const value =
-            input.value.trim();
-
-
-        if (
-            value.length >= 2
-        ) {
-
-            searchLocations(
-                value
-            );
-
-        }
-
-    }
-);
-
-
-/* =========================================================
-   ENTER KEY
-========================================================= */
-
-input.addEventListener(
-    "keydown",
-    event => {
-
-        if (
-            event.key === "Escape"
-        ) {
-
-            hideSuggestions();
-
-            return;
-        }
-
-
-        if (
-            event.key === "Enter"
-        ) {
-
-            event.preventDefault();
-
-
-            const first =
-                suggestions.querySelector(
-                    ".location-suggestion"
-                );
-
-
-            if (first) {
-
-                first.click();
-
-            } else if (
-                selectedLocation
-            ) {
-
-                searchLocora();
-
-            }
-
-        }
-
-    }
-);
-
-
-/* =========================================================
-   SEARCH LOCATIONS
-========================================================= */
-
-async function searchLocations(
-    query
-) {
-
-    const requestId =
-        ++searchRequestId;
-
-
-    suggestions.innerHTML = `
-
-        <div class="location-loading">
-
-            🔎 Searching for
-            <strong>
-                ${escapeHtml(query)}
-            </strong>
-
-        </div>
-
-    `;
-
-
-    suggestions.classList.add(
-        "visible"
-    );
-
-
-    try {
-
-        const response =
-            await fetch(
-                `${API_URL}/search?q=${encodeURIComponent(query)}`
-            );
-
-
-        if (
-            requestId !== searchRequestId
-        ) {
-
-            return;
-
-        }
-
-
-        if (
-            !response.ok
-        ) {
-
-            throw new Error(
-                `Search failed: ${response.status}`
-            );
-
-        }
-
-
-        const data =
-            await response.json();
-
-
-        if (
-            !data.success ||
-            !Array.isArray(
-                data.results
-            )
-        ) {
-
-            throw new Error(
-                "Invalid API response."
-            );
-
-        }
-
-
-        const results =
-            data.results;
-
-
-        if (
-            results.length === 0
-        ) {
-
-            suggestions.innerHTML = `
-
-                <div class="location-empty">
-
-                    No locations found for
-                    <strong>
-                        ${escapeHtml(query)}
-                    </strong>.
-
-                </div>
-
-            `;
-
-            return;
-
-        }
-
-
-        /*
-         * IMPORTANT:
-         *
-         * We DO NOT automatically select
-         * the first result.
-         *
-         * The user must choose one.
-         */
-
-        suggestions.innerHTML =
-            results
-                .slice(0, 8)
-                .map(
-                    (
-                        location,
-                        index
-                    ) =>
-                        createLocationSuggestion(
-                            location,
-                            index
-                        )
-                )
-                .join("");
-
-
-        suggestions
-            .querySelectorAll(
-                ".location-suggestion"
-            )
-            .forEach(
-                button => {
-
-                    button.addEventListener(
-                        "click",
-                        () => {
-
-                            const index =
-                                Number(
-                                    button.dataset.index
-                                );
-
-
-                            selectLocation(
-                                results[index]
-                            );
-
-                        }
-                    );
-
-                }
-            );
-
-
-    } catch (error) {
-
-        console.error(
-            "Location search error:",
-            error
-        );
-
-
-        suggestions.innerHTML = `
-
-            <div class="location-error">
-
-                ❌ Unable to search locations right now.
-
-                <br>
-
-                <small>
-                    Please try again.
-                </small>
-
-            </div>
-
-        `;
-
-    }
-
-}
-
-
-/* =========================================================
-   CREATE LOCATION SUGGESTION
-========================================================= */
-
-function createLocationSuggestion(
-    location,
-    index
-) {
-
-    const name =
-        location.name ||
-        "Unknown location";
-
-
-    const displayName =
-        location.displayName ||
-        location.name ||
-        "Location";
-
-
-    return `
-
-        <button
-            type="button"
-            class="location-suggestion"
-            data-index="${index}"
-        >
-
-            <span class="suggestion-icon">
-                📍
-            </span>
-
-
-            <span class="suggestion-content">
-
-                <strong>
-                    ${escapeHtml(name)}
-                </strong>
-
-
-                <small>
-                    ${escapeHtml(displayName)}
-                </small>
-
-            </span>
-
-        </button>
-
-    `;
-
-}
-
-
-/* =========================================================
-   SELECT LOCATION
-========================================================= */
-
-function selectLocation(
-    location
-) {
-
-    const latitude =
-        Number(
-            location.latitude
-        );
-
-    const longitude =
-        Number(
-            location.longitude
-        );
-
-
-    if (
-        !Number.isFinite(latitude) ||
-        !Number.isFinite(longitude)
-    ) {
-
-        status.textContent =
-            "This location doesn't have valid coordinates.";
-
-        return;
-
-    }
-
-
-    selectedLocation = {
-
-        name:
-            location.name ||
-            "Selected location",
-
-        displayName:
-            location.displayName ||
-            location.name ||
-            "Selected location",
-
-        latitude,
-
-        longitude,
-
-        searchValue:
-            location.name ||
-            location.displayName ||
-            ""
-
-    };
-
-
-    /*
-     * Save it.
-     */
-
-    localStorage.setItem(
-        "locoraSelectedLocation",
-        JSON.stringify(
-            selectedLocation
-        )
-    );
-
-
-    /*
-     * Put the selected location
-     * into the search box.
-     */
-
-    input.value =
-        selectedLocation.name;
-
-
-    /*
-     * Enable Search.
-     */
-
-    searchButton.disabled =
-        false;
-
-
-    /*
-     * Hide suggestions.
-     */
-
-    hideSuggestions();
-
-
-    /*
-     * Show confirmation.
-     */
-
-    status.innerHTML = `
-
-        📍 Location selected.
-        Now choose what you want to discover.
-
-    `;
-
-
-    locationResult.innerHTML = `
-
-        <strong>
-
-            📍
-            ${escapeHtml(
-                selectedLocation.displayName
-            )}
-
-        </strong>
-
-
-        <small>
-
-            ${latitude.toFixed(5)}
-            ,
-            ${longitude.toFixed(5)}
-
-        </small>
-
-    `;
-
-
-    locationResult.classList.add(
-        "visible"
-    );
-
-}
-
-
-/* =========================================================
-   CURRENT LOCATION BUTTON
-========================================================= */
-
-currentLocationButton.addEventListener(
-    "click",
-    useCurrentLocation
-);
-
-
-function useCurrentLocation() {
-
-    if (
-        !navigator.geolocation
-    ) {
-
-        status.textContent =
-            "Your browser doesn't support location services.";
-
-        return;
-
-    }
-
-
-    currentLocationButton.disabled =
-        true;
-
-
-    currentLocationButton.innerHTML =
-        "📍 Finding your location...";
-
-
-    status.textContent =
-        "Please allow location access in your browser.";
-
-
-    navigator.geolocation.getCurrentPosition(
-
-        position => {
-
-            const latitude =
-                Number(
-                    position.coords.latitude
-                );
-
-            const longitude =
-                Number(
-                    position.coords.longitude
-                );
-
-
-            reverseGeocode(
-                latitude,
-                longitude
-            );
-
-        },
-
-
-        error => {
-
-            console.error(
-                "Geolocation error:",
-                error
-            );
-
-
-            if (
-                error.code ===
-                error.PERMISSION_DENIED
-            ) {
-
-                status.textContent =
-                    "Location access was denied. Allow location access and try again.";
-
-            } else if (
-                error.code ===
-                error.POSITION_UNAVAILABLE
-            ) {
-
-                status.textContent =
-                    "Your location could not be determined.";
-
-            } else if (
-                error.code ===
-                error.TIMEOUT
-            ) {
-
-                status.textContent =
-                    "Location request timed out. Try again.";
-
-            } else {
-
-                status.textContent =
-                    "Unable to find your location.";
-
-            }
-
-
-            currentLocationButton.disabled =
-                false;
-
-
-            currentLocationButton.innerHTML =
-                "📍 Use my current location";
-
-        },
-
-
-        {
-            enableHighAccuracy: true,
-
-            timeout: 15000,
-
-            maximumAge: 60000
-
-        }
-
-    );
-
-}
-
-
-/* =========================================================
-   REVERSE GEOCODING
-========================================================= */
-
-async function reverseGeocode(
-    latitude,
-    longitude
-) {
-
-    try {
-
-        status.textContent =
-            "📍 Identifying your location...";
-
-
-        const url =
-            "https://nominatim.openstreetmap.org/reverse?" +
-            new URLSearchParams({
-
-                lat:
-                    latitude,
-
-                lon:
-                    longitude,
-
-                format:
-                    "json",
-
-                addressdetails:
-                    "1"
-
-            });
-
-
-        const response =
-            await fetch(
-                url,
-                {
-                    headers: {
-                        "Accept":
-                            "application/json"
-                    }
-                }
-            );
-
-
-        if (
-            !response.ok
-        ) {
-
-            throw new Error(
-                `Reverse geocoding failed: ${response.status}`
-            );
-
-        }
-
-
-        const data =
-            await response.json();
-
-
-        const address =
-            data.address ||
-            {};
-
-
-        /*
-         * Pick the best recognizable
-         * location name.
-         */
-
-        const name =
-            address.city ||
-            address.town ||
-            address.village ||
-            address.municipality ||
-            address.county ||
-            address.state ||
-            "Current location";
-
-
-        const displayName =
-            data.display_name ||
-            name;
-
-
-        selectedLocation = {
-
-            name,
-
-            displayName,
-
-            latitude,
-
-            longitude,
-
-            searchValue:
-                "current-location",
-
-            isCurrentLocation:
-                true
-
-        };
-
-
-        localStorage.setItem(
-            "locoraSelectedLocation",
-            JSON.stringify(
-                selectedLocation
-            )
-        );
-
-
-        input.value =
-            name;
-
-
-        searchButton.disabled =
-            false;
-
-
-        hideSuggestions();
-
-
-        locationResult.innerHTML = `
-
-            <strong>
-
-                📍 Using your current location
-
-            </strong>
-
-
-            <small>
-
-                ${escapeHtml(
-                    displayName
-                )}
-
-                <br>
-
-                ${latitude.toFixed(5)}
-                ,
-                ${longitude.toFixed(5)}
-
-            </small>
-
-        `;
-
-
-        locationResult.classList.add(
-            "visible"
-        );
-
-
-        status.innerHTML = `
-
-            📍
-            <strong>
-                You're here:
-            </strong>
-
-            ${escapeHtml(
-                displayName
-            )}
-
-        `;
-
-
-        /*
-         * We do NOT automatically search.
-         *
-         * The user can now choose
-         * Restaurants, Hotels, etc.
-         */
-
-    } catch (error) {
-
-        console.error(
-            "Reverse geocoding error:",
-            error
-        );
-
-
-        /*
-         * Even if the name lookup fails,
-         * keep the GPS coordinates.
-         */
-
-        selectedLocation = {
-
-            name:
-                "Current location",
-
-            displayName:
-                "Current location",
-
-            latitude,
-
-            longitude,
-
-            searchValue:
-                "current-location",
-
-            isCurrentLocation:
-                true
-
-        };
-
-
-        localStorage.setItem(
-            "locoraSelectedLocation",
-            JSON.stringify(
-                selectedLocation
-            )
-        );
-
-
-        input.value =
-            "Current location";
-
-
-        searchButton.disabled =
-            false;
-
-
-        locationResult.innerHTML = `
-
-            <strong>
-                📍 Current location
-            </strong>
-
-            <small>
-
-                ${latitude.toFixed(5)}
-                ,
-                ${longitude.toFixed(5)}
-
-            </small>
-
-        `;
-
-
-        locationResult.classList.add(
-            "visible"
-        );
-
-
-        status.textContent =
-            "📍 Your coordinates were found. You can explore nearby places.";
-
-    } finally {
-
-        currentLocationButton.disabled =
-            false;
-
-
-        currentLocationButton.innerHTML =
-            "📍 Use my current location";
-
-    }
-
-}
-
-
-/* =========================================================
-   SEARCH BUTTON
-========================================================= */
-
-function searchLocora() {
-
-    if (
-        !selectedLocation
-    ) {
-
-        status.textContent =
-            "Choose a location from the suggestions first.";
-
-        input.focus();
-
-        return;
-
-    }
-
-
-    status.innerHTML = `
-
-        📍 Selected:
-
-        <strong>
-            ${escapeHtml(
-                selectedLocation.displayName
-            )}
-        </strong>
-
-    `;
-
-
-    document
-        .getElementById(
-            "discover"
-        )
-        .scrollIntoView({
-            behavior: "smooth",
-            block: "start"
-        });
-
-}
-
-
-/* =========================================================
-   CATEGORY SEARCH
-========================================================= */
-
-async function searchCategory(
-    category,
-    categoryName,
-    icon,
-    clickedButton
-) {
-
-    const resultsSection =
-        document.getElementById(
-            "resultsSection"
-        );
-
-    const resultsContainer =
-        document.getElementById(
-            "resultsContainer"
-        );
-
-    const resultsTitle =
-        document.getElementById(
-            "resultsTitle"
-        );
-
-    const resultsSubtitle =
-        document.getElementById(
-            "resultsSubtitle"
-        );
-
-
-    if (
-        !selectedLocation
-    ) {
-
-        status.textContent =
-            "Please select a location first.";
-
-        input.focus();
-
-        window.scrollTo({
-
-            top: 0,
-
-            behavior: "smooth"
-
-        });
-
-        return;
-
-    }
-
-
-    document
-        .querySelectorAll(
-            ".category-button"
-        )
-        .forEach(
-            button => {
-
-                button.classList.remove(
-                    "active"
-                );
-
-            }
-        );
-
-
-    if (
-        clickedButton
-    ) {
-
-        clickedButton.classList.add(
-            "active"
-        );
-
-    }
-
-
-    resultsSection.classList.add(
-        "visible"
-    );
-
-
-    resultsTitle.textContent =
-        `${icon} ${categoryName}`;
-
-
-    resultsSubtitle.textContent =
-        `Searching around ${selectedLocation.displayName}...`;
-
-
-    resultsContainer.innerHTML = `
-
-        <div class="loading-state">
-
-            <div
-                style="
-                    font-size:30px;
-                    margin-bottom:10px;
-                "
-            >
-                🔎
-            </div>
-
-            Finding
-            ${categoryName.toLowerCase()}
-            near you...
-
-        </div>
-
-    `;
-
-
-    resultsSection.scrollIntoView({
-
-        behavior: "smooth",
-
-        block: "start"
-
-    });
-
-
-    try {
-
-        const url =
-            `${API_URL}/places` +
-
-            `?lat=${encodeURIComponent(
-                selectedLocation.latitude
-            )}` +
-
-            `&lon=${encodeURIComponent(
-                selectedLocation.longitude
-            )}` +
-
-            `&category=${encodeURIComponent(
-                category
-            )}`;
-
-
-        const response =
-            await fetch(url);
-
-
-        if (
-            !response.ok
-        ) {
-
-            throw new Error(
-                `Places search failed (${response.status})`
-            );
-
-        }
-
-
-        const data =
-            await response.json();
-
-
-        if (
-            !data.success ||
-            !Array.isArray(
-                data.results
-            )
-        ) {
-
-            throw new Error(
-                "Invalid places response."
-            );
-
-        }
-
-
-        const places =
-            data.results;
-
-
-        resultsSubtitle.textContent =
-            `${places.length} ${
-                places.length === 1
-                    ? "result"
-                    : "results"
-            } found near ${
-                selectedLocation.name
-            }.`;
-
-
-        if (
-            places.length === 0
-        ) {
-
-            resultsContainer.innerHTML = `
-
-                <div class="empty-state">
-
-                    <div
-                        style="
-                            font-size:35px;
-                            margin-bottom:10px;
-                        "
-                    >
-                        📍
-                    </div>
-
-                    <strong>
-
-                        No
-                        ${categoryName.toLowerCase()}
-                        found nearby.
-
-                    </strong>
-
-
-                    <p
-                        style="
-                            margin-top:8px;
-                        "
-                    >
-
-                        Try another category
-                        or location.
-
-                    </p>
-
-                </div>
-
-            `;
-
-            return;
-
-        }
-
-
-        resultsContainer.innerHTML =
-            places
-                .map(
-                    place =>
-                        createPlaceCard(
-                            place,
-                            icon
-                        )
-                )
-                .join("");
-
-
-    } catch (error) {
-
-        console.error(
-            "Category search error:",
-            error
-        );
-
-
-        resultsContainer.innerHTML = `
-
-            <div class="error-state">
-
-                <strong>
-                    Unable to load places.
-                </strong>
-
-
-                <p
-                    style="
-                        margin-top:8px;
-                    "
-                >
-
-                    Please try again in a moment.
-
-                </p>
-
-            </div>
-
-        `;
-
-
-        resultsSubtitle.textContent =
-            "Something went wrong while searching.";
-
-    }
-
-}
-
-
-/* =========================================================
-   PLACE CARD
-========================================================= */
-
-function createPlaceCard(
-    place,
-    icon
-) {
-
-    const name =
-        place.name ||
-        "Unnamed place";
-
-
-    const type =
-        place.type ||
-        place.category ||
-        "place";
-
-
-    const address =
-        place.address ||
-        "Address unavailable";
-
-
-    const distance =
-        Number(
-            place.distanceKm
-        );
-
-
-    const distanceText =
-        Number.isFinite(
-            distance
-        )
-            ? `${distance.toFixed(2)} km`
-            : "Nearby";
-
-
-    const website =
-        normalizeWebsite(
-            place.website
-        );
-
-
-    const mapUrl =
-        `https://www.google.com/maps/search/?api=1&query=${
-            encodeURIComponent(
-                `${name} ${address}`
-            )
-        }`;
-
-
-    let actions = `
 
         <a
-            class="map-link"
-            href="${mapUrl}"
-            target="_blank"
-            rel="noopener noreferrer"
+          href="explore.html"
+          class="see-all"
         >
-            📍 Map
+          See everything →
         </a>
 
-    `;
+      </div>
 
 
-    if (
-        website
-    ) {
+      <div class="categories">
 
-        actions += `
+        <a href="explore.html?category=Restaurants" class="category">
+          <div class="category-icon">🍔</div>
+          <span>Food</span>
+        </a>
 
-            <a
-                class="website-link"
-                href="${escapeAttribute(
-                    website
-                )}"
-                target="_blank"
-                rel="noopener noreferrer"
-            >
-                🌐 Website
-            </a>
+        <a href="explore.html?category=Coffee" class="category">
+          <div class="category-icon">☕</div>
+          <span>Coffee</span>
+        </a>
 
-        `;
+        <a href="explore.html?category=Things%20to%20Do" class="category">
+          <div class="category-icon">🎯</div>
+          <span>Things to do</span>
+        </a>
 
-    }
+        <a href="explore.html?category=Shopping" class="category">
+          <div class="category-icon">🛍️</div>
+          <span>Shopping</span>
+        </a>
+
+        <a href="explore.html?category=Hotels" class="category">
+          <div class="category-icon">🏨</div>
+          <span>Hotels</span>
+        </a>
+
+        <a href="explore.html?category=Services" class="category">
+          <div class="category-icon">🛠️</div>
+          <span>Services</span>
+        </a>
+
+        <a href="explore.html?category=Fitness" class="category">
+          <div class="category-icon">🏋️</div>
+          <span>Fitness</span>
+        </a>
+
+        <a href="explore.html?category=Nightlife" class="category">
+          <div class="category-icon">🌙</div>
+          <span>Nightlife</span>
+        </a>
+
+      </div>
+
+    </section>
 
 
-    return `
+    <!-- =====================================================
+         TRENDING
+         ===================================================== -->
 
-        <article class="place-card">
+    <section
+      class="trending"
+      id="trending"
+    >
 
+      <div class="trending-inner">
 
-            <div class="place-top">
+        <div class="section-head">
 
-                <div class="place-icon">
-                    ${icon}
-                </div>
+          <div>
 
-
-                <div class="place-distance">
-
-                    ${escapeHtml(
-                        distanceText
-                    )}
-
-                </div>
-
+            <div class="section-label">
+              Right now
             </div>
 
+            <h2 class="section-title">
+              People are checking out 🔥
+            </h2>
+
+          </div>
+
+          <a
+            href="explore.html"
+            class="see-all"
+          >
+            Explore →
+          </a>
+
+        </div>
+
+
+        <div class="trending-grid">
+
+          <a
+            href="explore.html"
+            class="trend-card large"
+          >
+
+            <span class="trend-emoji">
+              🍽️
+            </span>
+
+            <span class="trend-badge">
+              Trending
+            </span>
 
             <h3>
-
-                ${escapeHtml(
-                    name
-                )}
-
+              New spots to eat
             </h3>
 
+            <p>
+              Find restaurants everyone is talking about
+              before everyone else does.
+            </p>
 
-            <div class="place-type">
-
-                ${escapeHtml(
-                    type
-                )}
-
-            </div>
+          </a>
 
 
-            <div class="place-address">
+          <a
+            href="explore.html"
+            class="trend-card pink"
+          >
 
-                📍
-                ${escapeHtml(
-                    address
-                )}
+            <span class="trend-emoji">
+              🎟️
+            </span>
 
-            </div>
+            <span class="trend-badge">
+              Tonight
+            </span>
 
+            <h3>
+              What's happening
+            </h3>
 
-            ${
-                place.phone
-                    ? `
+            <p>
+              Events, experiences and things worth doing.
+            </p>
 
-                        <div class="place-hours">
-
-                            📞
-                            ${escapeHtml(
-                                place.phone
-                            )}
-
-                        </div>
-
-                    `
-                    : ""
-            }
+          </a>
 
 
-            ${
-                place.openingHours
-                    ? `
+          <a
+            href="explore.html"
+            class="trend-card blue"
+            id="deals"
+          >
 
-                        <div class="place-hours">
+            <span class="trend-emoji">
+              💸
+            </span>
 
-                            🕒
-                            ${escapeHtml(
-                                place.openingHours
-                            )}
+            <span class="trend-badge">
+              Save money
+            </span>
 
-                        </div>
+            <h3>
+              Deals nearby
+            </h3>
 
-                    `
-                    : ""
-            }
+            <p>
+              Find local offers without digging through
+              a million websites.
+            </p>
 
+          </a>
 
-            <div class="place-actions">
+        </div>
 
-                ${actions}
+      </div>
 
-            </div>
-
-
-        </article>
-
-    `;
-
-}
-
-
-/* =========================================================
-   LOAD SAVED LOCATION
-========================================================= */
-
-function loadSavedLocation() {
-
-    const saved =
-        localStorage.getItem(
-            "locoraSelectedLocation"
-        );
+    </section>
 
 
-    if (
-        !saved
-    ) {
+    <!-- =====================================================
+         CTA
+         ===================================================== -->
+
+    <section class="cta">
+
+      <div class="section-label">
+        LOCORA
+      </div>
+
+      <h2>
+        There's more
+        <br>
+        around you.
+      </h2>
+
+      <p>
+        Stop scrolling. Start discovering.
+      </p>
+
+      <a
+        href="explore.html"
+        class="cta-button"
+      >
+        Explore what's nearby →
+      </a>
+
+    </section>
+
+  </main>
+
+
+  <!-- =====================================================
+       FOOTER
+       ===================================================== -->
+
+  <footer>
+
+    <div class="footer-line"></div>
+
+    <div class="footer-content">
+
+      <div class="footer-brand">
+        locora
+      </div>
+
+      <span>
+        Discover what's worth knowing.
+      </span>
+
+      <span>
+        © 2026 Locora
+      </span>
+
+    </div>
+
+  </footer>
+
+
+  <!-- =====================================================
+       JAVASCRIPT
+       ===================================================== -->
+
+  <script>
+
+    function searchLocora() {
+
+      const input =
+        document.getElementById("mainSearch").value.trim();
+
+      if (!input) {
+
+        window.location.href = "explore.html";
 
         return;
+      }
+
+      window.location.href =
+        "explore.html?search=" +
+        encodeURIComponent(input);
 
     }
 
 
-    try {
+    function quickSearch(value) {
 
-        const location =
-            JSON.parse(saved);
+      window.location.href =
+        "explore.html?category=" +
+        encodeURIComponent(value);
 
-
-        const latitude =
-            Number(
-                location.latitude
-            );
-
-        const longitude =
-            Number(
-                location.longitude
-            );
+    }
 
 
-        if (
-            !Number.isFinite(latitude) ||
-            !Number.isFinite(longitude)
-        ) {
+    function useLocation() {
 
-            return;
+      const text =
+        document.getElementById("locationText");
+
+      if (!navigator.geolocation) {
+
+        text.textContent = "Location unavailable";
+
+        return;
+      }
+
+      text.textContent = "Finding you...";
+
+      navigator.geolocation.getCurrentPosition(
+
+        function(position) {
+
+          text.textContent = "Near you";
+
+          console.log(
+            "Latitude:",
+            position.coords.latitude
+          );
+
+          console.log(
+            "Longitude:",
+            position.coords.longitude
+          );
+
+        },
+
+        function() {
+
+          text.textContent = "Location blocked";
 
         }
 
-
-        selectedLocation =
-            location;
-
-
-        input.value =
-            location.name ||
-            location.displayName ||
-            "";
-
-
-        searchButton.disabled =
-            false;
-
-
-        locationResult.innerHTML = `
-
-            <strong>
-
-                📍
-                ${escapeHtml(
-                    location.displayName ||
-                    location.name
-                )}
-
-            </strong>
-
-
-            <small>
-
-                ${latitude.toFixed(5)}
-                ,
-                ${longitude.toFixed(5)}
-
-            </small>
-
-        `;
-
-
-        locationResult.classList.add(
-            "visible"
-        );
-
-
-    } catch (
-        error
-    ) {
-
-        console.error(
-            "Saved location error:",
-            error
-        );
+      );
 
     }
 
-}
 
+    document
+      .getElementById("mainSearch")
+      .addEventListener("keydown", function(event) {
 
-/* =========================================================
-   HIDE SUGGESTIONS
-========================================================= */
+        if (event.key === "Enter") {
 
-function hideSuggestions() {
-
-    suggestions.classList.remove(
-        "visible"
-    );
-
-}
-
-
-/* =========================================================
-   CLICK OUTSIDE
-========================================================= */
-
-document.addEventListener(
-    "click",
-    event => {
-
-        const wrapper =
-            document.querySelector(
-                ".location-search-wrapper"
-            );
-
-
-        if (
-            wrapper &&
-            !wrapper.contains(
-                event.target
-            )
-        ) {
-
-            hideSuggestions();
+          searchLocora();
 
         }
 
-    }
-);
+      });
 
-
-/* =========================================================
-   WEBSITE NORMALIZER
-========================================================= */
-
-function normalizeWebsite(
-    website
-) {
-
-    if (
-        typeof website !== "string"
-    ) {
-
-        return null;
-
-    }
-
-
-    const value =
-        website.trim();
-
-
-    if (
-        !value
-    ) {
-
-        return null;
-
-    }
-
-
-    if (
-        value.startsWith(
-            "javascript:"
-        )
-    ) {
-
-        return null;
-
-    }
-
-
-    if (
-        value.startsWith(
-            "http://"
-        ) ||
-        value.startsWith(
-            "https://"
-        )
-    ) {
-
-        return value;
-
-    }
-
-
-    return `https://${value}`;
-
-}
-
-
-/* =========================================================
-   ESCAPE HTML
-========================================================= */
-
-function escapeHtml(
-    value
-) {
-
-    return String(
-        value
-    )
-
-        .replaceAll(
-            "&",
-            "&amp;"
-        )
-
-        .replaceAll(
-            "<",
-            "&lt;"
-        )
-
-        .replaceAll(
-            ">",
-            "&gt;"
-        )
-
-        .replaceAll(
-            '"',
-            "&quot;"
-        )
-
-        .replaceAll(
-            "'",
-            "&#039;"
-        );
-
-}
-
-
-/* =========================================================
-   ESCAPE ATTRIBUTE
-========================================================= */
-
-function escapeAttribute(
-    value
-) {
-
-    return escapeHtml(
-        value
-    );
-
-}
-
-
-/* =========================================================
-   FOCUS SEARCH
-========================================================= */
-
-function focusSearch() {
-
-    input.focus();
-
-
-    window.scrollTo({
-
-        top: 0,
-
-        behavior: "smooth"
-
-    });
-
-}
-
-</script>
-
+  </script>
 
 </body>
-</html>
+</htm
