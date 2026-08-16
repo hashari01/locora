@@ -1,1880 +1,852 @@
-```javascript
-const API_URL = "https://locora-api.onrender.com";
+/* =========================================================
+   LOCORA — FRONTEND ENGINE
+   ========================================================= */
+
+const places = [
+
+  {
+    id: 1,
+    name: "The Garage Food Hall",
+    category: "Restaurants",
+    rating: 4.8,
+    reviews: 2300,
+    distance: 0.8,
+    price: 2,
+    open: true,
+    trending: true,
+    image: "image-one",
+    icon: "🍔",
+    description: "A lively local food hall with multiple restaurants, drinks and plenty of atmosphere."
+  },
+
+  {
+    id: 2,
+    name: "Provider Coffee",
+    category: "Coffee",
+    rating: 4.7,
+    reviews: 1200,
+    distance: 1.1,
+    price: 2,
+    open: true,
+    trending: true,
+    image: "image-two",
+    icon: "☕",
+    description: "A modern neighborhood coffee shop serving specialty coffee and fresh pastries."
+  },
+
+  {
+    id: 3,
+    name: "Newfields",
+    category: "Things to Do",
+    rating: 4.9,
+    reviews: 3100,
+    distance: 3.2,
+    price: 3,
+    open: true,
+    trending: true,
+    image: "image-three",
+    icon: "🎨",
+    description: "Explore art, gardens and cultural experiences in one of Indianapolis' most popular destinations."
+  },
+
+  {
+    id: 4,
+    name: "Bottleworks District",
+    category: "Shopping",
+    rating: 4.7,
+    reviews: 1900,
+    distance: 1.6,
+    price: 2,
+    open: true,
+    trending: false,
+    image: "image-four",
+    icon: "🛍️",
+    description: "A modern district filled with restaurants, shopping, entertainment and events."
+  },
+
+  {
+    id: 5,
+    name: "The Jazz Kitchen",
+    category: "Restaurants",
+    rating: 4.6,
+    reviews: 1400,
+    distance: 2.4,
+    price: 3,
+    open: false,
+    trending: false,
+    image: "image-five",
+    icon: "🎷",
+    description: "Live music, dinner and an intimate atmosphere for a memorable night out."
+  },
+
+  {
+    id: 6,
+    name: "Monon Trail",
+    category: "Things to Do",
+    rating: 4.8,
+    reviews: 2700,
+    distance: 2.9,
+    price: 1,
+    open: true,
+    trending: true,
+    image: "image-six",
+    icon: "🚲",
+    description: "A popular local trail for walking, running, cycling and enjoying the outdoors."
+  },
+
+  {
+    id: 7,
+    name: "Anytime Fitness",
+    category: "Fitness",
+    rating: 4.5,
+    reviews: 800,
+    distance: 1.9,
+    price: 2,
+    open: true,
+    trending: false,
+    image: "image-three",
+    icon: "🏋️",
+    description: "A convenient neighborhood gym with equipment and flexible hours."
+  },
+
+  {
+    id: 8,
+    name: "Bottleworks Hotel",
+    category: "Hotels",
+    rating: 4.7,
+    reviews: 980,
+    distance: 1.7,
+    price: 4,
+    open: true,
+    trending: false,
+    image: "image-four",
+    icon: "🏨",
+    description: "A stylish stay located in the heart of the Bottleworks district."
+  }
+
+];
+
 
 /* =========================================================
-   LOCORA LOCATION SYSTEM
-========================================================= */
+   STATE
+   ========================================================= */
 
-let selectedLocation = null;
-let searchTimer = null;
-let searchRequestId = 0;
-
-
-/* =========================================================
-   GET ELEMENTS
-========================================================= */
-
-function getSearchInput() {
-    return document.getElementById("searchInput");
-}
-
-function getSuggestions() {
-    return document.getElementById("locationSuggestions");
-}
-
-function getStatus() {
-    return document.getElementById("searchStatus");
-}
+let currentPlaces = [...places];
+let savedPlaces = JSON.parse(localStorage.getItem("locoraSaved")) || [];
+let currentCategory = "All";
+let currentFilter = "all";
 
 
 /* =========================================================
    INITIALIZE
-========================================================= */
+   ========================================================= */
 
 document.addEventListener("DOMContentLoaded", () => {
 
-    const input = getSearchInput();
+  renderTrending();
+  renderResults();
+  renderSaved();
 
-    if (!input) {
-        console.warn("Locora: #searchInput was not found.");
-        return;
-    }
+  const savedTheme = localStorage.getItem("locoraTheme");
 
-    selectedLocation = loadSavedLocation();
+  if (savedTheme === "dark") {
+    document.body.classList.add("dark");
+    document.getElementById("themeBtn").textContent = "☀";
+  }
 
-    createLocationUI();
+  document
+    .getElementById("themeBtn")
+    .addEventListener("click", toggleTheme);
 
-    /*
-     * If a location was already selected,
-     * restore it into the search box.
-     */
+  document
+    .getElementById("searchInput")
+    .addEventListener("keydown", event => {
+      if (event.key === "Enter") {
+        performSearch();
+      }
+    });
 
-    if (selectedLocation) {
-
-        input.value =
-            selectedLocation.name ||
-            selectedLocation.displayName ||
-            "";
-
-        updateSelectedStatus();
-    }
-
-
-    /*
-     * Typing in the search box.
-     */
-
-    input.addEventListener(
-        "input",
-        handleLocationTyping
-    );
-
-
-    /*
-     * Focus search box.
-     */
-
-    input.addEventListener(
-        "focus",
-        () => {
-
-            const value =
-                input.value.trim();
-
-            if (value.length >= 2) {
-
-                searchLocations(value);
-
-            } else {
-
-                showCurrentLocationButton();
-            }
-        }
-    );
-
-
-    /*
-     * Keyboard controls.
-     */
-
-    input.addEventListener(
-        "keydown",
-        event => {
-
-            if (event.key === "Escape") {
-
-                hideSuggestions();
-
-                return;
-            }
-
-
-            if (event.key === "Enter") {
-
-                event.preventDefault();
-
-                const first =
-                    document.querySelector(
-                        ".location-suggestion"
-                    );
-
-                if (first) {
-
-                    first.click();
-
-                } else {
-
-                    searchLocora();
-                }
-            }
-        }
-    );
-
-
-    /*
-     * Make sure the UI exists.
-     */
-
-    showCurrentLocationButton();
 });
 
 
 /* =========================================================
-   CREATE LOCATION UI
-========================================================= */
+   RENDER TRENDING
+   ========================================================= */
 
-function createLocationUI() {
+function renderTrending() {
 
-    const input =
-        getSearchInput();
+  const grid = document.getElementById("trendingGrid");
 
-    if (!input) {
-        return;
-    }
+  const trending = places.filter(place => place.trending);
 
+  grid.innerHTML = trending
+    .map(place => createPlaceCard(place))
+    .join("");
 
-    const searchBox =
-        input.closest(".search-box");
-
-
-    if (!searchBox) {
-
-        console.warn(
-            "Locora: .search-box was not found."
-        );
-
-        return;
-    }
-
-
-    /*
-     * Suggestions container.
-     */
-
-    let suggestions =
-        document.getElementById(
-            "locationSuggestions"
-        );
-
-
-    if (!suggestions) {
-
-        suggestions =
-            document.createElement("div");
-
-        suggestions.id =
-            "locationSuggestions";
-
-        suggestions.className =
-            "location-suggestions";
-
-
-        /*
-         * Put suggestions directly
-         * below the search box.
-         */
-
-        searchBox.insertAdjacentElement(
-            "afterend",
-            suggestions
-        );
-    }
-
-
-    /*
-     * Current location button.
-     */
-
-    let currentLocationButton =
-        document.getElementById(
-            "currentLocationButton"
-        );
-
-
-    if (!currentLocationButton) {
-
-        currentLocationButton =
-            document.createElement("button");
-
-        currentLocationButton.id =
-            "currentLocationButton";
-
-        currentLocationButton.type =
-            "button";
-
-        currentLocationButton.className =
-            "current-location-button";
-
-        currentLocationButton.innerHTML =
-            "📍 Use my current location";
-
-
-        currentLocationButton.addEventListener(
-            "click",
-            useCurrentLocation
-        );
-
-
-        /*
-         * Put current-location button
-         * directly below search suggestions.
-         */
-
-        suggestions.insertAdjacentElement(
-            "afterend",
-            currentLocationButton
-        );
-    }
-
-
-    addLocationStyles();
 }
 
 
 /* =========================================================
-   LOCATION TYPING
-========================================================= */
+   RENDER RESULTS
+   ========================================================= */
 
-function handleLocationTyping(event) {
+function renderResults(data = currentPlaces) {
 
-    const input =
-        event.target;
+  const grid = document.getElementById("resultsGrid");
 
-    const value =
-        input.value.trim();
+  if (!data.length) {
 
-
-    /*
-     * User changed the selected location.
-     */
-
-    if (
-        selectedLocation &&
-        value !== selectedLocation.name &&
-        value !== selectedLocation.searchValue
-    ) {
-
-        selectedLocation = null;
-
-        localStorage.removeItem(
-            "locoraSelectedLocation"
-        );
-    }
-
-
-    clearTimeout(searchTimer);
-
-
-    /*
-     * Empty search.
-     */
-
-    if (!value) {
-
-        hideSuggestions();
-
-        showCurrentLocationButton();
-
-        return;
-    }
-
-
-    /*
-     * Too short.
-     */
-
-    if (value.length < 2) {
-
-        hideSuggestions();
-
-        return;
-    }
-
-
-    /*
-     * Wait until user stops typing.
-     */
-
-    searchTimer =
-        setTimeout(
-            () => {
-
-                searchLocations(value);
-
-            },
-            300
-        );
-}
-
-
-/* =========================================================
-   SEARCH LOCATIONS
-========================================================= */
-
-async function searchLocations(query) {
-
-    const suggestions =
-        getSuggestions();
-
-
-    if (!suggestions) {
-        return;
-    }
-
-
-    const cleanQuery =
-        String(query || "").trim();
-
-
-    if (cleanQuery.length < 2) {
-
-        hideSuggestions();
-
-        return;
-    }
-
-
-    /*
-     * Create unique request ID.
-     *
-     * This prevents an older API request
-     * from replacing newer results.
-     */
-
-    const requestId =
-        ++searchRequestId;
-
-
-    /*
-     * Show loading.
-     */
-
-    suggestions.innerHTML = `
-        <div class="location-loading">
-            <span class="location-spinner"></span>
-            Searching for "${escapeHtml(cleanQuery)}"...
-        </div>
+    grid.innerHTML = `
+      <div style="
+        grid-column:1/-1;
+        padding:60px 20px;
+        text-align:center;
+        color:var(--muted);
+      ">
+        <div style="font-size:40px;">🔎</div>
+        <h3 style="color:var(--text);margin-top:10px;">
+          Nothing found
+        </h3>
+        <p style="margin-top:5px;">
+          Try another search or category.
+        </p>
+      </div>
     `;
 
+    return;
+  }
 
-    suggestions.classList.add(
-        "visible"
-    );
+  grid.innerHTML = data
+    .map(place => createPlaceCard(place))
+    .join("");
 
-
-    showCurrentLocationButton();
-
-
-    try {
-
-        const response =
-            await fetch(
-                `${API_URL}/search?q=${encodeURIComponent(cleanQuery)}`,
-                {
-                    method: "GET",
-                    headers: {
-                        "Accept":
-                            "application/json"
-                    }
-                }
-            );
-
-
-        /*
-         * Ignore old request.
-         */
-
-        if (
-            requestId !== searchRequestId
-        ) {
-
-            return;
-        }
-
-
-        if (!response.ok) {
-
-            throw new Error(
-                `API returned ${response.status}`
-            );
-        }
-
-
-        const data =
-            await response.json();
-
-
-        if (
-            !data ||
-            data.success !== true ||
-            !Array.isArray(data.results)
-        ) {
-
-            throw new Error(
-                "Invalid API response."
-            );
-        }
-
-
-        const results =
-            data.results;
-
-
-        /*
-         * No results.
-         */
-
-        if (results.length === 0) {
-
-            suggestions.innerHTML = `
-                <div class="location-empty">
-
-                    <div class="location-empty-icon">
-                        🔍
-                    </div>
-
-                    <strong>
-                        No locations found
-                    </strong>
-
-                    <span>
-                        Try searching for a city, state, country, or address.
-                    </span>
-
-                </div>
-            `;
-
-            return;
-        }
-
-
-        /*
-         * Render results.
-         */
-
-        suggestions.innerHTML =
-            results
-                .map(
-                    (location, index) =>
-                        createSuggestion(
-                            location,
-                            index
-                        )
-                )
-                .join("");
-
-
-        /*
-         * Attach click events.
-         */
-
-        suggestions
-            .querySelectorAll(
-                ".location-suggestion"
-            )
-            .forEach(
-                button => {
-
-                    button.addEventListener(
-                        "click",
-                        () => {
-
-                            const index =
-                                Number(
-                                    button.dataset.index
-                                );
-
-
-                            const location =
-                                results[index];
-
-
-                            selectLocation(
-                                location,
-                                cleanQuery
-                            );
-                        }
-                    );
-                }
-            );
-
-
-    } catch (error) {
-
-        /*
-         * Ignore old requests.
-         */
-
-        if (
-            requestId !== searchRequestId
-        ) {
-
-            return;
-        }
-
-
-        console.error(
-            "Locora location search error:",
-            error
-        );
-
-
-        suggestions.innerHTML = `
-            <div class="location-error">
-
-                <div class="location-error-icon">
-                    ⚠️
-                </div>
-
-                <strong>
-                    Search temporarily unavailable
-                </strong>
-
-                <span>
-                    Please check your connection and try again.
-                </span>
-
-            </div>
-        `;
-    }
 }
 
 
 /* =========================================================
-   CREATE LOCATION SUGGESTION
-========================================================= */
+   PLACE CARD
+   ========================================================= */
 
-function createSuggestion(
-    location,
-    index
-) {
+function createPlaceCard(place) {
 
-    const name =
-        location.name ||
-        location.displayName ||
-        "Unknown location";
+  const saved = savedPlaces.includes(place.id);
 
+  const price = "$".repeat(place.price);
 
-    const displayName =
-        location.displayName ||
-        name;
+  return `
 
+    <article
+      class="place-card"
+      onclick="openPlace(${place.id})"
+    >
 
-    const type =
-        location.type ||
-        "location";
+      <div class="place-image ${place.image}">
 
+        ${
+          place.trending
+            ? `<span class="trending-badge">🔥 Trending</span>`
+            : ""
+        }
 
-    const category =
-        location.category ||
-        "";
-
-
-    return `
         <button
-            type="button"
-            class="location-suggestion"
-            data-index="${index}"
+          class="save-btn ${saved ? "saved" : ""}"
+          onclick="event.stopPropagation(); toggleSave(${place.id})"
+          aria-label="Save ${place.name}"
         >
-
-            <span class="suggestion-icon">
-                📍
-            </span>
-
-
-            <span class="suggestion-content">
-
-                <strong>
-                    ${escapeHtml(name)}
-                </strong>
-
-
-                <small>
-                    ${escapeHtml(displayName)}
-                </small>
-
-
-                <span class="suggestion-type">
-                    ${escapeHtml(
-                        formatLocationType(
-                            type,
-                            category
-                        )
-                    )}
-                </span>
-
-            </span>
-
-
-            <span class="suggestion-arrow">
-                →
-            </span>
-
+          ${saved ? "♥" : "♡"}
         </button>
-    `;
+
+        <div class="place-photo-text">
+          ${place.icon}
+        </div>
+
+      </div>
+
+      <div class="place-body">
+
+        <div class="place-top">
+
+          <div>
+            <div class="place-title">
+              ${place.name}
+            </div>
+
+            <div class="place-category">
+              ${place.category}
+            </div>
+          </div>
+
+          <div class="place-rating">
+            ⭐ ${place.rating}
+          </div>
+
+        </div>
+
+        <div class="place-meta">
+
+          <span class="meta">
+            📍 ${place.distance} mi
+          </span>
+
+          <span class="meta">
+            ${price}
+          </span>
+
+          <span class="meta ${place.open ? "open" : ""}">
+            ${place.open ? "● Open now" : "Closed"}
+          </span>
+
+        </div>
+
+        <p class="place-description">
+          ${place.description}
+        </p>
+
+      </div>
+
+    </article>
+
+  `;
 }
 
 
 /* =========================================================
-   FORMAT LOCATION TYPE
-========================================================= */
+   SEARCH
+   ========================================================= */
 
-function formatLocationType(
-    type,
-    category
-) {
+function performSearch() {
 
-    const value =
-        category ||
-        type ||
-        "location";
+  const input = document
+    .getElementById("searchInput")
+    .value
+    .trim()
+    .toLowerCase();
 
+  if (!input) {
 
-    return String(value)
-        .replaceAll("_", " ")
-        .replace(
-            /\b\w/g,
-            letter =>
-                letter.toUpperCase()
-        );
+    currentPlaces = [...places];
+
+    document.getElementById("resultsTitle").textContent =
+      "Places around you";
+
+    document.getElementById("resultsSubtitle").textContent =
+      "Popular places worth checking out.";
+
+    renderResults();
+
+    scrollToResults();
+
+    return;
+  }
+
+  const results = places.filter(place => {
+
+    const text = `
+      ${place.name}
+      ${place.category}
+      ${place.description}
+    `.toLowerCase();
+
+    return text.includes(input);
+
+  });
+
+  currentPlaces = results;
+
+  document.getElementById("resultsTitle").textContent =
+    `Results for "${input}"`;
+
+  document.getElementById("resultsSubtitle").textContent =
+    `${results.length} discovery${results.length === 1 ? "" : "ies"} found nearby.`;
+
+  renderResults(results);
+
+  scrollToResults();
+
 }
 
 
 /* =========================================================
-   SELECT LOCATION
-========================================================= */
+   QUICK SEARCH
+   ========================================================= */
 
-function selectLocation(
-    location,
-    originalSearch
-) {
+function quickSearch(category) {
 
-    const latitude =
-        Number(location.latitude);
+  document.getElementById("searchInput").value = category;
 
-    const longitude =
-        Number(location.longitude);
+  filterCategory(category);
 
-
-    if (
-        !Number.isFinite(latitude) ||
-        !Number.isFinite(longitude)
-    ) {
-
-        console.error(
-            "Locora: Invalid coordinates.",
-            location
-        );
-
-        return;
-    }
-
-
-    selectedLocation = {
-
-        name:
-            location.name ||
-            originalSearch,
-
-        displayName:
-            location.displayName ||
-            location.name ||
-            originalSearch,
-
-        latitude,
-
-        longitude,
-
-        searchValue:
-            originalSearch,
-
-        isCurrentLocation:
-            false
-    };
-
-
-    /*
-     * Save location.
-     */
-
-    saveSelectedLocation();
-
-
-    /*
-     * Put selected location
-     * into search bar.
-     */
-
-    const input =
-        getSearchInput();
-
-
-    if (input) {
-
-        input.value =
-            selectedLocation.name;
-
-        input.blur();
-    }
-
-
-    /*
-     * Hide dropdown.
-     */
-
-    hideSuggestions();
-
-
-    /*
-     * Update status.
-     */
-
-    updateSelectedStatus();
-
-
-    /*
-     * Update search button.
-     */
-
-    const searchButton =
-        document.getElementById(
-            "searchButton"
-        );
-
-
-    if (searchButton) {
-
-        searchButton.textContent =
-            "Explore";
-    }
-
-
-    /*
-     * Update result element
-     * if it exists.
-     */
-
-    updateLocationResult();
 }
 
 
 /* =========================================================
-   CURRENT LOCATION
-========================================================= */
+   CATEGORY FILTER
+   ========================================================= */
 
-function useCurrentLocation() {
+function filterCategory(category, button = null) {
 
-    const status =
-        getStatus();
+  currentCategory = category;
 
+  document
+    .querySelectorAll(".category-card")
+    .forEach(card => card.classList.remove("active"));
 
-    const button =
-        document.getElementById(
-            "currentLocationButton"
-        );
+  if (button) {
+    button.classList.add("active");
+  }
 
+  if (category === "All") {
 
-    if (!navigator.geolocation) {
+    currentPlaces = [...places];
 
-        if (status) {
+  } else {
 
-            status.textContent =
-                "Your browser does not support location services.";
-        }
-
-        return;
-    }
-
-
-    /*
-     * Loading state.
-     */
-
-    if (button) {
-
-        button.disabled =
-            true;
-
-        button.innerHTML =
-            `
-            <span class="location-spinner"></span>
-            Finding your location...
-            `;
-    }
-
-
-    if (status) {
-
-        status.textContent =
-            "Allow location access to find your current location.";
-    }
-
-
-    navigator.geolocation.getCurrentPosition(
-
-        position => {
-
-            const latitude =
-                Number(
-                    position.coords.latitude
-                );
-
-
-            const longitude =
-                Number(
-                    position.coords.longitude
-                );
-
-
-            reverseGeocode(
-                latitude,
-                longitude
-            );
-        },
-
-
-        error => {
-
-            console.error(
-                "Locora geolocation error:",
-                error
-            );
-
-
-            if (status) {
-
-                if (
-                    error.code ===
-                    error.PERMISSION_DENIED
-                ) {
-
-                    status.textContent =
-                        "Location access was denied. Please allow location access in your browser.";
-
-                } else if (
-                    error.code ===
-                    error.TIMEOUT
-                ) {
-
-                    status.textContent =
-                        "Location request timed out. Please try again.";
-
-                } else {
-
-                    status.textContent =
-                        "Unable to find your current location. Please try again.";
-                }
-            }
-
-
-            resetCurrentLocationButton();
-        },
-
-
-        {
-            enableHighAccuracy:
-                true,
-
-            timeout:
-                15000,
-
-            maximumAge:
-                60000
-        }
+    currentPlaces = places.filter(place =>
+      place.category === category
     );
+
+  }
+
+  document.getElementById("resultsTitle").textContent =
+    category === "All"
+      ? "Places around you"
+      : category;
+
+  document.getElementById("resultsSubtitle").textContent =
+    `${currentPlaces.length} place${currentPlaces.length === 1 ? "" : "s"} to explore.`;
+
+  renderResults(currentPlaces);
+
+  scrollToResults();
+
 }
 
 
 /* =========================================================
-   REVERSE GEOCODE
-========================================================= */
+   FILTERS
+   ========================================================= */
 
-async function reverseGeocode(
-    latitude,
-    longitude
-) {
+function toggleFilterMenu() {
 
-    const status =
-        getStatus();
+  document
+    .getElementById("filterMenu")
+    .classList.toggle("show");
 
+}
 
-    try {
 
-        /*
-         * Use your own API.
-         *
-         * This avoids making the browser
-         * call Nominatim directly.
-         */
+function applyQuickFilter(type) {
 
-        const url =
-            `${API_URL}/reverse?lat=${encodeURIComponent(latitude)}&lon=${encodeURIComponent(longitude)}`;
+  currentFilter = type;
 
+  let results = [...currentPlaces];
 
-        const response =
-            await fetch(
-                url,
-                {
-                    method: "GET",
-                    headers: {
-                        "Accept":
-                            "application/json"
-                    }
-                }
-            );
+  if (type === "open") {
 
+    results = results.filter(place => place.open);
 
-        if (!response.ok) {
+  }
 
-            throw new Error(
-                `Reverse API returned ${response.status}`
-            );
-        }
+  if (type === "cheap") {
 
+    results = results.filter(place => place.price <= 2);
 
-        const data =
-            await response.json();
+  }
 
+  if (type === "top") {
 
-        const displayName =
-            data.displayName ||
-            data.display_name ||
-            "Current location";
+    results = results.filter(place => place.rating >= 4.5);
 
+  }
 
-        const name =
-            data.name ||
-            data.city ||
-            data.address?.city ||
-            data.address?.town ||
-            data.address?.village ||
-            data.address?.state ||
-            "Current location";
+  renderResults(results);
 
+  showToast("Filter applied");
 
-        selectedLocation = {
-
-            name,
-
-            displayName,
-
-            latitude,
-
-            longitude,
-
-            searchValue:
-                "current-location",
-
-            isCurrentLocation:
-                true
-        };
-
-
-        saveSelectedLocation();
-
-
-        const input =
-            getSearchInput();
-
-
-        if (input) {
-
-            input.value =
-                name;
-
-            input.blur();
-        }
-
-
-        hideSuggestions();
-
-
-        updateSelectedStatus();
-
-        updateLocationResult();
-
-
-        /*
-         * Go to Explore.
-         */
-
-        setTimeout(
-            () => {
-
-                goToExplore();
-
-            },
-            400
-        );
-
-
-    } catch (error) {
-
-        console.error(
-            "Locora reverse geocoding error:",
-            error
-        );
-
-
-        /*
-         * We still have valid coordinates.
-         * Save them even if the name lookup fails.
-         */
-
-        selectedLocation = {
-
-            name:
-                "Current location",
-
-            displayName:
-                "Current location",
-
-            latitude,
-
-            longitude,
-
-            searchValue:
-                "current-location",
-
-            isCurrentLocation:
-                true
-        };
-
-
-        saveSelectedLocation();
-
-
-        const input =
-            getSearchInput();
-
-
-        if (input) {
-
-            input.value =
-                "Current location";
-
-            input.blur();
-        }
-
-
-        hideSuggestions();
-
-
-        if (status) {
-
-            status.textContent =
-                "Location found. Opening Explore...";
-        }
-
-
-        updateLocationResult();
-
-
-        setTimeout(
-            () => {
-
-                goToExplore();
-
-            },
-            500
-        );
-
-
-    } finally {
-
-        resetCurrentLocationButton();
-    }
 }
 
 
 /* =========================================================
-   SEARCH BUTTON
-========================================================= */
+   SORT
+   ========================================================= */
 
-function searchLocora() {
+function sortResults() {
 
-    const input =
-        getSearchInput();
+  const value =
+    document.getElementById("sortSelect").value;
 
+  let sorted = [...currentPlaces];
 
-    if (!input) {
-        return;
-    }
+  if (value === "rating") {
 
+    sorted.sort((a, b) =>
+      b.rating - a.rating
+    );
 
-    /*
-     * Already selected.
-     */
+  }
 
-    if (selectedLocation) {
+  if (value === "distance") {
 
-        goToExplore();
+    sorted.sort((a, b) =>
+      a.distance - b.distance
+    );
 
-        return;
-    }
+  }
 
+  if (value === "price-low") {
 
-    const value =
-        input.value.trim();
+    sorted.sort((a, b) =>
+      a.price - b.price
+    );
 
+  }
 
-    if (!value) {
+  renderResults(sorted);
 
-        const status =
-            getStatus();
-
-
-        if (status) {
-
-            status.textContent =
-                "Type a location first.";
-        }
-
-
-        input.focus();
-
-        return;
-    }
-
-
-    /*
-     * Search and show choices.
-     */
-
-    searchLocations(value);
 }
 
 
 /* =========================================================
-   GO TO EXPLORE
-========================================================= */
+   SAVE SYSTEM
+   ========================================================= */
 
-function goToExplore() {
+function toggleSave(id) {
 
-    /*
-     * First check memory variable.
-     */
+  if (savedPlaces.includes(id)) {
 
-    if (
-        selectedLocation &&
-        Number.isFinite(
-            Number(selectedLocation.latitude)
-        ) &&
-        Number.isFinite(
-            Number(selectedLocation.longitude)
-        )
-    ) {
+    savedPlaces =
+      savedPlaces.filter(placeId => placeId !== id);
 
-        saveSelectedLocation();
+    showToast("Removed from saved");
 
-    } else {
+  } else {
 
-        /*
-         * Try localStorage.
-         */
+    savedPlaces.push(id);
 
-        const saved =
-            loadSavedLocation();
+    showToast("Saved to your Locora ❤️");
 
+  }
 
-        if (saved) {
+  localStorage.setItem(
+    "locoraSaved",
+    JSON.stringify(savedPlaces)
+  );
 
-            selectedLocation =
-                saved;
+  renderTrending();
+  renderResults(currentPlaces);
+  renderSaved();
 
-        } else {
-
-            const status =
-                getStatus();
-
-
-            if (status) {
-
-                status.textContent =
-                    "Please select a location first.";
-            }
-
-
-            return;
-        }
-    }
-
-
-    /*
-     * Go to explore page.
-     */
-
-    window.location.href =
-        "explore.html";
 }
 
 
-/* =========================================================
-   SAVE LOCATION
-========================================================= */
+function renderSaved() {
 
-function saveSelectedLocation() {
+  const container =
+    document.getElementById("savedContent");
 
-    if (!selectedLocation) {
-        return;
-    }
+  if (!savedPlaces.length) {
 
+    container.className = "saved-empty";
 
-    try {
-
-        localStorage.setItem(
-            "locoraSelectedLocation",
-            JSON.stringify(
-                selectedLocation
-            )
-        );
-
-    } catch (error) {
-
-        console.error(
-            "Locora: Could not save location.",
-            error
-        );
-    }
-}
-
-
-/* =========================================================
-   LOAD SAVED LOCATION
-========================================================= */
-
-function loadSavedLocation() {
-
-    try {
-
-        const saved =
-            localStorage.getItem(
-                "locoraSelectedLocation"
-            );
-
-
-        if (!saved) {
-            return null;
-        }
-
-
-        const location =
-            JSON.parse(saved);
-
-
-        const latitude =
-            Number(location.latitude);
-
-
-        const longitude =
-            Number(location.longitude);
-
-
-        if (
-            !Number.isFinite(latitude) ||
-            !Number.isFinite(longitude)
-        ) {
-
-            localStorage.removeItem(
-                "locoraSelectedLocation"
-            );
-
-            return null;
-        }
-
-
-        return {
-
-            ...location,
-
-            latitude,
-
-            longitude
-        };
-
-
-    } catch (error) {
-
-        console.error(
-            "Locora: Invalid saved location.",
-            error
-        );
-
-
-        localStorage.removeItem(
-            "locoraSelectedLocation"
-        );
-
-
-        return null;
-    }
-}
-
-
-/* =========================================================
-   UPDATE SELECTED STATUS
-========================================================= */
-
-function updateSelectedStatus() {
-
-    const status =
-        getStatus();
-
-
-    if (!status || !selectedLocation) {
-        return;
-    }
-
-
-    if (
-        selectedLocation.isCurrentLocation
-    ) {
-
-        status.innerHTML = `
-            📍 Using your current location
-            <strong>
-                ${escapeHtml(
-                    selectedLocation.displayName ||
-                    selectedLocation.name
-                )}
-            </strong>
-        `;
-
-    } else {
-
-        status.innerHTML = `
-            📍 Selected location:
-            <strong>
-                ${escapeHtml(
-                    selectedLocation.displayName ||
-                    selectedLocation.name
-                )}
-            </strong>
-        `;
-    }
-}
-
-
-/* =========================================================
-   UPDATE LOCATION RESULT
-========================================================= */
-
-function updateLocationResult() {
-
-    const locationResult =
-        document.getElementById(
-            "locationResult"
-        );
-
-
-    if (
-        !locationResult ||
-        !selectedLocation
-    ) {
-
-        return;
-    }
-
-
-    locationResult.innerHTML = `
-
-        <strong>
-            📍 ${escapeHtml(
-                selectedLocation.displayName ||
-                selectedLocation.name
-            )}
-        </strong>
-
-        <small>
-            ${Number(
-                selectedLocation.latitude
-            ).toFixed(5)}
-            ,
-            ${Number(
-                selectedLocation.longitude
-            ).toFixed(5)}
-        </small>
-
+    container.innerHTML = `
+      <div>♡</div>
+      <h3>Nothing saved yet</h3>
+      <p>
+        Tap the heart on a place you love and it'll appear here.
+      </p>
     `;
 
+    return;
+  }
 
-    locationResult.classList.add(
-        "visible"
+  const saved = places.filter(place =>
+    savedPlaces.includes(place.id)
+  );
+
+  container.className = "place-grid";
+
+  container.innerHTML =
+    saved.map(place =>
+      createPlaceCard(place)
+    ).join("");
+
+}
+
+
+/* =========================================================
+   PLACE MODAL
+   ========================================================= */
+
+function openPlace(id) {
+
+  const place =
+    places.find(item => item.id === id);
+
+  if (!place) return;
+
+  document.getElementById("modalTitle").textContent =
+    place.name;
+
+  document.getElementById("modalRating").textContent =
+    `⭐ ${place.rating} · ${place.reviews.toLocaleString()} reviews`;
+
+  document.getElementById("modalCategory").textContent =
+    `${place.icon} ${place.category}`;
+
+  document.getElementById("modalDescription").textContent =
+    place.description;
+
+  document.getElementById("modalImage").className =
+    `modal-image ${place.image}`;
+
+  document.getElementById("modalInfo").innerHTML = `
+
+    <span>📍 ${place.distance} miles away</span>
+
+    <span>${"$".repeat(place.price)}</span>
+
+    <span>
+      ${place.open ? "🟢 Open now" : "🔴 Closed"}
+    </span>
+
+  `;
+
+  document.getElementById("modalSave").onclick =
+    () => toggleSave(place.id);
+
+  document.getElementById("modalDirections").onclick =
+    () => openDirections(place);
+
+  document
+    .getElementById("placeModal")
+    .classList.add("show");
+
+}
+
+
+function closePlaceModal() {
+
+  document
+    .getElementById("placeModal")
+    .classList.remove("show");
+
+}
+
+
+function closeModal(event) {
+
+  if (event.target.id === "placeModal") {
+    closePlaceModal();
+  }
+
+}
+
+
+/* =========================================================
+   DIRECTIONS
+   ========================================================= */
+
+function openDirections(place) {
+
+  const query =
+    encodeURIComponent(
+      `${place.name}, Indianapolis, IN`
     );
+
+  window.open(
+    `https://www.google.com/maps/search/?api=1&query=${query}`,
+    "_blank"
+  );
+
 }
 
 
 /* =========================================================
-   SHOW CURRENT LOCATION BUTTON
-========================================================= */
+   LOCATION
+   ========================================================= */
 
-function showCurrentLocationButton() {
+function getLocation() {
 
-    const button =
-        document.getElementById(
-            "currentLocationButton"
-        );
+  if (!navigator.geolocation) {
 
+    showToast("Location isn't supported on this device.");
 
-    if (!button) {
-        return;
+    return;
+  }
+
+  showToast("Finding your location…");
+
+  navigator.geolocation.getCurrentPosition(
+
+    position => {
+
+      const lat =
+        position.coords.latitude;
+
+      const lng =
+        position.coords.longitude;
+
+      document.getElementById("locationText").textContent =
+        "Near you";
+
+      showToast(
+        `Location found 📍 ${lat.toFixed(2)}, ${lng.toFixed(2)}`
+      );
+
+      /*
+        IMPORTANT:
+
+        This frontend is ready for a real location API.
+
+        Later you can send:
+        lat
+        lng
+
+        to your backend/API and return real nearby businesses.
+      */
+
+    },
+
+    () => {
+
+      showToast(
+        "Couldn't access your location. Check browser permissions."
+      );
+
+    },
+
+    {
+      enableHighAccuracy: true,
+      timeout: 10000
     }
 
+  );
 
-    button.style.display =
-        "flex";
 }
 
 
 /* =========================================================
-   RESET CURRENT LOCATION BUTTON
-========================================================= */
+   THEME
+   ========================================================= */
 
-function resetCurrentLocationButton() {
+function toggleTheme() {
 
-    const button =
-        document.getElementById(
-            "currentLocationButton"
-        );
+  document.body.classList.toggle("dark");
 
+  const dark =
+    document.body.classList.contains("dark");
 
-    if (!button) {
-        return;
-    }
+  localStorage.setItem(
+    "locoraTheme",
+    dark ? "dark" : "light"
+  );
 
+  document.getElementById("themeBtn").textContent =
+    dark ? "☀" : "☾";
 
-    button.disabled =
-        false;
-
-
-    button.innerHTML =
-        "📍 Use my current location";
-
-
-    button.style.display =
-        "flex";
 }
 
 
 /* =========================================================
-   HIDE SUGGESTIONS
-========================================================= */
+   MOBILE MENU
+   ========================================================= */
 
-function hideSuggestions() {
+function toggleMenu() {
 
-    const suggestions =
-        getSuggestions();
+  document
+    .getElementById("mobileMenu")
+    .classList.toggle("open");
 
-
-    if (!suggestions) {
-        return;
-    }
+}
 
 
-    suggestions.classList.remove(
-        "visible"
-    );
+function closeMenu() {
+
+  document
+    .getElementById("mobileMenu")
+    .classList.remove("open");
+
 }
 
 
 /* =========================================================
-   CLICK OUTSIDE
-========================================================= */
+   SCROLLING
+   ========================================================= */
 
-document.addEventListener(
-    "click",
-    event => {
+function scrollToDiscover() {
 
-        const suggestions =
-            getSuggestions();
+  document
+    .getElementById("discover")
+    .scrollIntoView({
+      behavior: "smooth"
+    });
 
-
-        const input =
-            getSearchInput();
-
-
-        const button =
-            document.getElementById(
-                "currentLocationButton"
-            );
+}
 
 
-        if (
-            !suggestions ||
-            !input
-        ) {
+function scrollToResults() {
 
-            return;
-        }
+  setTimeout(() => {
 
+    document
+      .getElementById("results")
+      .scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+      });
 
-        if (
-            !suggestions.contains(
-                event.target
-            ) &&
-            event.target !== input &&
-            (!button ||
-                !button.contains(
-                    event.target
-                ))
-        ) {
+  }, 100);
 
-            hideSuggestions();
-        }
-    }
-);
+}
 
 
-/* =========================================================
-   ESCAPE HTML
-========================================================= */
+function goHome() {
 
-function escapeHtml(value) {
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+  });
 
-    return String(value)
-
-        .replaceAll(
-            "&",
-            "&amp;"
-        )
-
-        .replaceAll(
-            "<",
-            "&lt;"
-        )
-
-        .replaceAll(
-            ">",
-            "&gt;"
-        )
-
-        .replaceAll(
-            '"',
-            "&quot;"
-        )
-
-        .replaceAll(
-            "'",
-            "&#039;"
-        );
 }
 
 
 /* =========================================================
-   LOCATION CSS
-========================================================= */
+   ALL CATEGORIES
+   ========================================================= */
 
-function addLocationStyles() {
+function showAllCategories() {
 
-    if (
-        document.getElementById(
-            "locoraLocationStyles"
-        )
-    ) {
+  document
+    .getElementById("explore")
+    .scrollIntoView({
+      behavior: "smooth"
+    });
 
-        return;
-    }
-
-
-    const style =
-        document.createElement(
-            "style"
-        );
-
-
-    style.id =
-        "locoraLocationStyles";
-
-
-    style.textContent = `
-
-        .location-suggestions {
-            width: 100%;
-            max-width: 760px;
-            margin: 8px auto 0;
-            background: #ffffff;
-            border: 1px solid #e5e7eb;
-            border-radius: 16px;
-            overflow: hidden;
-            display: none;
-            box-shadow:
-                0 15px 40px rgba(0,0,0,0.10);
-            position: relative;
-            z-index: 1000;
-        }
-
-
-        .location-suggestions.visible {
-            display: block;
-        }
-
-
-        .location-suggestion {
-            width: 100%;
-            border: none;
-            border-bottom: 1px solid #f0f1f3;
-            background: #ffffff;
-            padding: 15px 16px;
-            display: flex;
-            align-items: center;
-            gap: 13px;
-            text-align: left;
-            cursor: pointer;
-            transition:
-                background 0.15s ease,
-                transform 0.15s ease;
-        }
-
-
-        .location-suggestion:last-child {
-            border-bottom: none;
-        }
-
-
-        .location-suggestion:hover {
-            background: #f8fafc;
-        }
-
-
-        .location-suggestion:active {
-            transform: scale(0.995);
-        }
-
-
-        .suggestion-icon {
-            width: 42px;
-            height: 42px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #eff6ff;
-            border-radius: 12px;
-            flex-shrink: 0;
-            font-size: 19px;
-        }
-
-
-        .suggestion-content {
-            min-width: 0;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 3px;
-        }
-
-
-        .suggestion-content strong {
-            color: #111827;
-            font-size: 14px;
-            font-weight: 700;
-        }
-
-
-        .suggestion-content small {
-            color: #6b7280;
-            font-size: 12px;
-            line-height: 1.4;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-
-        .suggestion-type {
-            color: #2563eb;
-            font-size: 11px;
-            font-weight: 600;
-        }
-
-
-        .suggestion-arrow {
-            color: #9ca3af;
-            font-size: 18px;
-            flex-shrink: 0;
-        }
-
-
-        .location-loading,
-        .location-empty,
-        .location-error {
-            padding: 20px;
-            text-align: center;
-            font-size: 14px;
-        }
-
-
-        .location-loading {
-            color: #6b7280;
-        }
-
-
-        .location-empty {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 5px;
-            color: #6b7280;
-        }
-
-
-        .location-empty strong {
-            color: #111827;
-        }
-
-
-        .location-empty-icon {
-            font-size: 24px;
-            margin-bottom: 3px;
-        }
-
-
-        .location-error {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 5px;
-            color: #b91c1c;
-            background: #fef2f2;
-        }
-
-
-        .location-error-icon {
-            font-size: 24px;
-        }
-
-
-        .current-location-button {
-            width: 100%;
-            max-width: 760px;
-            margin: 10px auto 0;
-            border: 1px solid #dbeafe;
-            background: #eff6ff;
-            color: #1d4ed8;
-            padding: 12px 16px;
-            border-radius: 12px;
-            font-size: 14px;
-            font-weight: 700;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            transition:
-                background 0.15s ease,
-                transform 0.15s ease;
-        }
-
-
-        .current-location-button:hover {
-            background: #dbeafe;
-            transform: translateY(-1px);
-        }
-
-
-        .current-location-button:active {
-            transform: translateY(0);
-        }
-
-
-        .current-location-button:disabled {
-            opacity: 0.65;
-            cursor: wait;
-            transform: none;
-        }
-
-
-        .location-spinner {
-            width: 15px;
-            height: 15px;
-            border: 2px solid rgba(37,99,235,0.25);
-            border-top-color: #2563eb;
-            border-radius: 50%;
-            display: inline-block;
-            animation:
-                locoraSpin 0.7s linear infinite;
-        }
-
-
-        @keyframes locoraSpin {
-
-            to {
-                transform: rotate(360deg);
-            }
-
-        }
-
-
-        @media (max-width: 700px) {
-
-            .location-suggestions {
-                max-width: 100%;
-            }
-
-
-            .current-location-button {
-                max-width: 100%;
-            }
-
-
-            .location-suggestion {
-                padding: 13px;
-            }
-
-        }
-
-    `;
-
-
-    document.head.appendChild(
-        style
-    );
 }
 
 
 /* =========================================================
-   SUPPORT GLOBAL BUTTONS
-========================================================= */
+   TOAST
+   ========================================================= */
 
-window.searchLocora =
-    searchLocora;
+let toastTimer;
 
+function showToast(message) {
 
-window.useCurrentLocation =
-    useCurrentLocation;
+  const toast =
+    document.getElementById("toast");
 
+  toast.textContent = message;
 
-window.goToExplore =
-    goToExplore;
+  toast.classList.add("show");
 
+  clearTimeout(toastTimer);
 
-window.selectLocation =
-    selectLocation;
+  toastTimer =
+    setTimeout(() => {
 
+      toast.classList.remove("show");
 
-/* =========================================================
-   EXPOSE SAVED LOCATION
-========================================================= */
+    }, 2600);
 
-window.getLocoraLocation =
-    loadSavedLocation;
-```
+}
