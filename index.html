@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -13,6 +12,7 @@
     >
 
     <style>
+
         * {
             box-sizing: border-box;
             margin: 0;
@@ -40,6 +40,10 @@
         input {
             font: inherit;
         }
+
+        /* =====================================================
+           NAVIGATION
+        ===================================================== */
 
         nav {
             height: 72px;
@@ -96,6 +100,10 @@
             font-size: 14px;
         }
 
+        /* =====================================================
+           HERO
+        ===================================================== */
+
         .hero {
             max-width: 1100px;
             margin: auto;
@@ -143,9 +151,20 @@
             line-height: 1.6;
         }
 
-        .search-box {
+        /* =====================================================
+           SEARCH AREA
+        ===================================================== */
+
+        .location-search-wrapper {
             max-width: 760px;
             margin: auto;
+
+            position: relative;
+            z-index: 20;
+        }
+
+        .search-box {
+            width: 100%;
 
             background: white;
 
@@ -158,6 +177,17 @@
 
             box-shadow:
                 0 15px 40px rgba(0, 0, 0, 0.08);
+
+            transition:
+                border-color 0.2s,
+                box-shadow 0.2s;
+        }
+
+        .search-box:focus-within {
+            border-color: #93c5fd;
+
+            box-shadow:
+                0 15px 40px rgba(37, 99, 235, 0.12);
         }
 
         .search-box input {
@@ -171,6 +201,8 @@
             padding: 15px;
 
             font-size: 16px;
+
+            background: transparent;
         }
 
         .search-box button {
@@ -187,26 +219,222 @@
             font-weight: 700;
 
             cursor: pointer;
+
+            transition:
+                background 0.2s,
+                opacity 0.2s;
         }
 
-        .search-box button:hover {
+        .search-box button:hover:not(:disabled) {
             background: #1d4ed8;
         }
 
-        .search-status {
-            min-height: 24px;
-            margin-top: 15px;
+        .search-box button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
 
-            color: #6b7280;
+        /* =====================================================
+           LOCATION SUGGESTIONS
+        ===================================================== */
+
+        .location-suggestions {
+            width: 100%;
+
+            margin-top: 8px;
+
+            background: white;
+
+            border: 1px solid #e5e7eb;
+
+            border-radius: 14px;
+
+            overflow: hidden;
+
+            display: none;
+
+            box-shadow:
+                0 15px 40px rgba(0, 0, 0, 0.10);
+
+            text-align: left;
+        }
+
+        .location-suggestions.visible {
+            display: block;
+        }
+
+        .location-suggestion {
+            width: 100%;
+
+            border: none;
+            border-bottom: 1px solid #f0f1f3;
+
+            background: white;
+
+            padding: 14px 16px;
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 13px;
+
+            text-align: left;
+
+            cursor: pointer;
+
+            transition:
+                background 0.15s;
+        }
+
+        .location-suggestion:last-child {
+            border-bottom: none;
+        }
+
+        .location-suggestion:hover {
+            background: #f8fafc;
+        }
+
+        .suggestion-icon {
+            width: 40px;
+            height: 40px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            background: #eff6ff;
+
+            border-radius: 10px;
+
+            flex-shrink: 0;
+
+            font-size: 18px;
+        }
+
+        .suggestion-content {
+            min-width: 0;
+
+            display: flex;
+            flex-direction: column;
+
+            gap: 3px;
+        }
+
+        .suggestion-content strong {
+            color: #111827;
+
             font-size: 14px;
         }
 
+        .suggestion-content small {
+            color: #6b7280;
+
+            font-size: 12px;
+
+            line-height: 1.4;
+
+            overflow: hidden;
+
+            text-overflow: ellipsis;
+
+            white-space: nowrap;
+        }
+
+        .location-loading,
+        .location-empty,
+        .location-error {
+            padding: 18px;
+
+            text-align: center;
+
+            color: #6b7280;
+
+            font-size: 14px;
+        }
+
+        .location-error {
+            color: #b91c1c;
+
+            background: #fef2f2;
+        }
+
+        /* =====================================================
+           CURRENT LOCATION
+        ===================================================== */
+
+        .current-location-button {
+            width: 100%;
+
+            margin-top: 8px;
+
+            border: 1px solid #dbeafe;
+
+            background: white;
+
+            color: #1d4ed8;
+
+            padding: 13px 16px;
+
+            border-radius: 12px;
+
+            font-size: 14px;
+
+            font-weight: 700;
+
+            cursor: pointer;
+
+            box-shadow:
+                0 5px 18px rgba(0, 0, 0, 0.05);
+
+            transition:
+                background 0.15s,
+                border-color 0.15s,
+                transform 0.15s;
+        }
+
+        .current-location-button:hover {
+            background: #eff6ff;
+
+            border-color: #93c5fd;
+
+            transform: translateY(-1px);
+        }
+
+        .current-location-button:disabled {
+            opacity: 0.6;
+
+            cursor: wait;
+
+            transform: none;
+        }
+
+        /* =====================================================
+           STATUS
+        ===================================================== */
+
+        .search-status {
+            min-height: 24px;
+
+            margin-top: 15px;
+
+            color: #6b7280;
+
+            font-size: 14px;
+        }
+
+        /* =====================================================
+           SELECTED LOCATION
+        ===================================================== */
+
         .location-result {
             max-width: 760px;
+
             margin: 15px auto 0;
 
             background: white;
-            border: 1px solid #e5e7eb;
+
+            border: 1px solid #bfdbfe;
 
             border-radius: 14px;
 
@@ -223,12 +451,17 @@
 
         .location-result strong {
             display: block;
+
             margin-bottom: 5px;
         }
 
         .location-result small {
             color: #6b7280;
         }
+
+        /* =====================================================
+           SECTIONS
+        ===================================================== */
 
         .section {
             max-width: 1100px;
@@ -239,18 +472,25 @@
 
         .section-title {
             text-align: center;
+
             margin-bottom: 30px;
         }
 
         .section-title h2 {
             font-size: 34px;
+
             letter-spacing: -1px;
         }
 
         .section-title p {
             color: #6b7280;
+
             margin-top: 10px;
         }
+
+        /* =====================================================
+           CATEGORIES
+        ===================================================== */
 
         .category-grid {
             display: grid;
@@ -261,6 +501,7 @@
             gap: 14px;
 
             max-width: 900px;
+
             margin: 0 auto;
         }
 
@@ -268,6 +509,7 @@
             background: white;
 
             border: 1px solid #e5e7eb;
+
             border-radius: 15px;
 
             padding: 20px 15px;
@@ -293,23 +535,33 @@
 
         .category-button.active {
             border-color: #2563eb;
+
             background: #eff6ff;
         }
 
         .category-icon {
             display: block;
+
             font-size: 28px;
+
             margin-bottom: 9px;
         }
 
         .category-name {
             display: block;
+
             font-size: 14px;
+
             font-weight: 700;
         }
 
+        /* =====================================================
+           RESULTS
+        ===================================================== */
+
         .results-section {
             max-width: 1100px;
+
             margin: auto;
 
             padding: 0 25px 80px;
@@ -327,12 +579,15 @@
 
         .results-header h2 {
             font-size: 28px;
+
             letter-spacing: -0.8px;
         }
 
         .results-header p {
             color: #6b7280;
+
             margin-top: 6px;
+
             font-size: 14px;
         }
 
@@ -349,6 +604,7 @@
             background: white;
 
             border: 1px solid #e5e7eb;
+
             border-radius: 17px;
 
             padding: 22px;
@@ -367,8 +623,11 @@
 
         .place-top {
             display: flex;
+
             align-items: flex-start;
+
             justify-content: space-between;
+
             gap: 12px;
         }
 
@@ -377,6 +636,7 @@
             height: 44px;
 
             display: flex;
+
             align-items: center;
             justify-content: center;
 
@@ -391,12 +651,15 @@
 
         .place-distance {
             background: #f3f4f6;
+
             color: #4b5563;
 
             padding: 5px 8px;
+
             border-radius: 999px;
 
             font-size: 11px;
+
             font-weight: 700;
 
             white-space: nowrap;
@@ -404,20 +667,27 @@
 
         .place-card h3 {
             font-size: 18px;
+
             margin-top: 15px;
+
             margin-bottom: 6px;
         }
 
         .place-type {
             color: #2563eb;
+
             font-size: 12px;
+
             font-weight: 700;
+
             text-transform: capitalize;
         }
 
         .place-address {
             color: #6b7280;
+
             font-size: 13px;
+
             line-height: 1.5;
 
             margin-top: 12px;
@@ -425,12 +695,15 @@
 
         .place-hours {
             color: #6b7280;
+
             font-size: 12px;
+
             margin-top: 9px;
         }
 
         .place-actions {
             display: flex;
+
             gap: 8px;
 
             margin-top: 17px;
@@ -448,16 +721,19 @@
             border-radius: 9px;
 
             font-size: 12px;
+
             font-weight: 700;
         }
 
         .website-link {
             background: #2563eb;
+
             color: white;
         }
 
         .map-link {
             background: #f3f4f6;
+
             color: #111827;
         }
 
@@ -479,9 +755,15 @@
 
         .error-state {
             color: #b91c1c;
+
             background: #fef2f2;
+
             border-color: #fecaca;
         }
+
+        /* =====================================================
+           WHY LOCORA
+        ===================================================== */
 
         .cards {
             display: grid;
@@ -518,6 +800,7 @@
             height: 48px;
 
             display: flex;
+
             align-items: center;
             justify-content: center;
 
@@ -532,17 +815,25 @@
 
         .card h3 {
             font-size: 19px;
+
             margin-bottom: 8px;
         }
 
         .card p {
             color: #6b7280;
+
             line-height: 1.5;
+
             font-size: 14px;
         }
 
+        /* =====================================================
+           HOW IT WORKS
+        ===================================================== */
+
         .how-section {
             max-width: 1100px;
+
             margin: auto;
 
             padding: 10px 25px 75px;
@@ -557,6 +848,7 @@
             gap: 20px;
 
             max-width: 900px;
+
             margin: auto;
         }
 
@@ -575,10 +867,12 @@
             height: 42px;
 
             display: flex;
+
             align-items: center;
             justify-content: center;
 
             background: #2563eb;
+
             color: white;
 
             border-radius: 50%;
@@ -594,15 +888,23 @@
 
         .step p {
             color: #6b7280;
+
             line-height: 1.5;
+
             font-size: 14px;
         }
 
+        /* =====================================================
+           CTA
+        ===================================================== */
+
         .cta {
             background: #111827;
+
             color: white;
 
             max-width: 1050px;
+
             margin: 20px auto 80px;
 
             padding: 55px 30px;
@@ -614,11 +916,13 @@
 
         .cta h2 {
             font-size: 35px;
+
             margin-bottom: 12px;
         }
 
         .cta p {
             color: #d1d5db;
+
             margin-bottom: 25px;
         }
 
@@ -626,6 +930,7 @@
             border: none;
 
             background: white;
+
             color: #111827;
 
             padding: 13px 22px;
@@ -637,6 +942,10 @@
             cursor: pointer;
         }
 
+        /* =====================================================
+           FOOTER
+        ===================================================== */
+
         footer {
             text-align: center;
 
@@ -646,6 +955,10 @@
 
             font-size: 14px;
         }
+
+        /* =====================================================
+           MOBILE
+        ===================================================== */
 
         @media (max-width: 700px) {
 
@@ -671,6 +984,7 @@
 
             .search-box {
                 flex-direction: column;
+
                 gap: 8px;
             }
 
@@ -685,11 +999,22 @@
             .steps {
                 grid-template-columns: 1fr;
             }
+
+            .current-location-button {
+                padding: 14px;
+            }
         }
+
     </style>
 </head>
 
+
 <body>
+
+
+<!-- =========================================================
+     NAV
+========================================================= -->
 
 <nav>
 
@@ -719,45 +1044,94 @@
 </nav>
 
 
+<!-- =========================================================
+     HERO
+========================================================= -->
+
 <section class="hero">
 
     <div class="badge">
         🌎 Discover more around you
     </div>
 
+
     <h1>
+
         Find what's
-        <span>worth knowing.</span>
+
+        <span>
+            worth knowing.
+        </span>
+
     </h1>
 
+
     <p>
+
         Search for places, services, businesses,
         experiences, and opportunities around any
         location.
+
     </p>
 
-    <div class="search-box">
 
-        <input
-            id="searchInput"
-            type="text"
-            placeholder="Search a city or location..."
-            autocomplete="off"
-        >
+    <!-- =====================================================
+         LOCATION SEARCH
+    ===================================================== -->
+
+    <div class="location-search-wrapper">
+
+
+        <div class="search-box">
+
+            <input
+                id="searchInput"
+                type="text"
+                placeholder="Search a city or location..."
+                autocomplete="off"
+                spellcheck="false"
+            >
+
+
+            <button
+                id="searchButton"
+                type="button"
+                onclick="searchLocora()"
+                disabled
+            >
+                Search
+            </button>
+
+        </div>
+
+
+        <!-- LOCATION SUGGESTIONS -->
+
+        <div
+            id="locationSuggestions"
+            class="location-suggestions"
+        ></div>
+
+
+        <!-- CURRENT LOCATION -->
 
         <button
-            id="searchButton"
-            onclick="searchLocora()"
+            id="currentLocationButton"
+            type="button"
+            class="current-location-button"
         >
-            Search
+            📍 Use my current location
         </button>
 
+
     </div>
+
 
     <div
         id="searchStatus"
         class="search-status"
     ></div>
+
 
     <div
         id="locationResult"
@@ -766,6 +1140,10 @@
 
 </section>
 
+
+<!-- =========================================================
+     DISCOVER
+========================================================= -->
 
 <section
     class="section"
@@ -779,7 +1157,7 @@
         </h2>
 
         <p>
-            Choose what you want to discover around your searched location.
+            Choose what you want to discover around your selected location.
         </p>
 
     </div>
@@ -787,11 +1165,13 @@
 
     <div class="category-grid">
 
+
         <button
             class="category-button"
             data-category="restaurant"
             onclick="searchCategory('restaurant', 'Restaurants', '🍽️', this)"
         >
+
             <span class="category-icon">
                 🍽️
             </span>
@@ -799,6 +1179,7 @@
             <span class="category-name">
                 Restaurants
             </span>
+
         </button>
 
 
@@ -807,6 +1188,7 @@
             data-category="cafe"
             onclick="searchCategory('cafe', 'Coffee', '☕', this)"
         >
+
             <span class="category-icon">
                 ☕
             </span>
@@ -814,6 +1196,7 @@
             <span class="category-name">
                 Coffee
             </span>
+
         </button>
 
 
@@ -822,6 +1205,7 @@
             data-category="hotel"
             onclick="searchCategory('hotel', 'Hotels', '🏨', this)"
         >
+
             <span class="category-icon">
                 🏨
             </span>
@@ -829,6 +1213,7 @@
             <span class="category-name">
                 Hotels
             </span>
+
         </button>
 
 
@@ -837,6 +1222,7 @@
             data-category="shop"
             onclick="searchCategory('shop', 'Shopping', '🛍️', this)"
         >
+
             <span class="category-icon">
                 🛍️
             </span>
@@ -844,6 +1230,7 @@
             <span class="category-name">
                 Shopping
             </span>
+
         </button>
 
 
@@ -852,6 +1239,7 @@
             data-category="attraction"
             onclick="searchCategory('attraction', 'Things to Do', '🎯', this)"
         >
+
             <span class="category-icon">
                 🎯
             </span>
@@ -859,6 +1247,7 @@
             <span class="category-name">
                 Things to Do
             </span>
+
         </button>
 
 
@@ -867,6 +1256,7 @@
             data-category="service"
             onclick="searchCategory('service', 'Services', '🛠️', this)"
         >
+
             <span class="category-icon">
                 🛠️
             </span>
@@ -874,12 +1264,18 @@
             <span class="category-name">
                 Services
             </span>
+
         </button>
+
 
     </div>
 
 </section>
 
+
+<!-- =========================================================
+     RESULTS
+========================================================= -->
 
 <section
     id="resultsSection"
@@ -907,6 +1303,10 @@
 </section>
 
 
+<!-- =========================================================
+     WHY LOCORA
+========================================================= -->
+
 <section class="section">
 
     <div class="section-title">
@@ -923,6 +1323,7 @@
 
 
     <div class="cards">
+
 
         <div class="card">
 
@@ -997,10 +1398,15 @@
 
         </div>
 
+
     </div>
 
 </section>
 
+
+<!-- =========================================================
+     HOW IT WORKS
+========================================================= -->
 
 <section
     class="how-section"
@@ -1021,6 +1427,7 @@
 
 
     <div class="steps">
+
 
         <div class="step">
 
@@ -1047,12 +1454,12 @@
             </div>
 
             <h3>
-                Discover
+                Choose
             </h3>
 
             <p>
-                Locora finds the coordinates of
-                your location and searches nearby.
+                Select the exact location from
+                Locora's suggestions.
             </p>
 
         </div>
@@ -1075,10 +1482,15 @@
 
         </div>
 
+
     </div>
 
 </section>
 
+
+<!-- =========================================================
+     CTA
+========================================================= -->
 
 <section class="cta">
 
@@ -1108,63 +1520,245 @@
 
 <script>
 
+/* =========================================================
+   LOCORA API
+========================================================= */
+
 const API_URL =
     "https://locora-api.onrender.com";
 
 
+/* =========================================================
+   STATE
+========================================================= */
+
 let selectedLocation = null;
+
+let searchTimer = null;
+
+let searchRequestId = 0;
 
 
 /* =========================================================
-   LOCATION SEARCH
+   ELEMENTS
 ========================================================= */
 
-async function searchLocora() {
+const input =
+    document.getElementById(
+        "searchInput"
+    );
 
-    const input =
-        document.getElementById(
-            "searchInput"
-        );
+const searchButton =
+    document.getElementById(
+        "searchButton"
+    );
 
-    const button =
-        document.getElementById(
-            "searchButton"
-        );
+const suggestions =
+    document.getElementById(
+        "locationSuggestions"
+    );
 
-    const status =
-        document.getElementById(
-            "searchStatus"
-        );
+const currentLocationButton =
+    document.getElementById(
+        "currentLocationButton"
+    );
 
-    const locationResult =
-        document.getElementById(
-            "locationResult"
-        );
+const status =
+    document.getElementById(
+        "searchStatus"
+    );
 
-    const value =
-        input.value.trim();
+const locationResult =
+    document.getElementById(
+        "locationResult"
+    );
 
 
-    if (!value) {
+/* =========================================================
+   INITIALIZE
+========================================================= */
 
-        status.textContent =
-            "Please enter a city or location.";
+document.addEventListener(
+    "DOMContentLoaded",
+    () => {
 
-        input.focus();
+        loadSavedLocation();
 
-        return;
     }
+);
 
 
-    button.disabled = true;
+/* =========================================================
+   INPUT TYPING
+========================================================= */
 
-    button.textContent =
-        "Searching...";
+input.addEventListener(
+    "input",
+    () => {
 
-    status.textContent =
-        "Finding your location...";
+        const value =
+            input.value.trim();
 
-    locationResult.classList.remove(
+
+        /*
+         * If the user changes the text
+         * after selecting a location,
+         * remove the old selection.
+         */
+
+        if (
+            selectedLocation &&
+            value !== selectedLocation.name &&
+            value !== selectedLocation.displayName
+        ) {
+
+            selectedLocation = null;
+
+            localStorage.removeItem(
+                "locoraSelectedLocation"
+            );
+
+            searchButton.disabled = true;
+
+            locationResult.classList.remove(
+                "visible"
+            );
+        }
+
+
+        clearTimeout(
+            searchTimer
+        );
+
+
+        if (
+            value.length < 2
+        ) {
+
+            hideSuggestions();
+
+            return;
+        }
+
+
+        searchTimer =
+            setTimeout(
+                () => {
+
+                    searchLocations(
+                        value
+                    );
+
+                },
+                300
+            );
+
+    }
+);
+
+
+/* =========================================================
+   INPUT FOCUS
+========================================================= */
+
+input.addEventListener(
+    "focus",
+    () => {
+
+        const value =
+            input.value.trim();
+
+
+        if (
+            value.length >= 2
+        ) {
+
+            searchLocations(
+                value
+            );
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   ENTER KEY
+========================================================= */
+
+input.addEventListener(
+    "keydown",
+    event => {
+
+        if (
+            event.key === "Escape"
+        ) {
+
+            hideSuggestions();
+
+            return;
+        }
+
+
+        if (
+            event.key === "Enter"
+        ) {
+
+            event.preventDefault();
+
+
+            const first =
+                suggestions.querySelector(
+                    ".location-suggestion"
+                );
+
+
+            if (first) {
+
+                first.click();
+
+            } else if (
+                selectedLocation
+            ) {
+
+                searchLocora();
+
+            }
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   SEARCH LOCATIONS
+========================================================= */
+
+async function searchLocations(
+    query
+) {
+
+    const requestId =
+        ++searchRequestId;
+
+
+    suggestions.innerHTML = `
+
+        <div class="location-loading">
+
+            🔎 Searching for
+            <strong>
+                ${escapeHtml(query)}
+            </strong>
+
+        </div>
+
+    `;
+
+
+    suggestions.classList.add(
         "visible"
     );
 
@@ -1173,15 +1767,27 @@ async function searchLocora() {
 
         const response =
             await fetch(
-                `${API_URL}/search?q=${encodeURIComponent(value)}`
+                `${API_URL}/search?q=${encodeURIComponent(query)}`
             );
 
 
-        if (!response.ok) {
+        if (
+            requestId !== searchRequestId
+        ) {
+
+            return;
+
+        }
+
+
+        if (
+            !response.ok
+        ) {
 
             throw new Error(
-                `Search failed (${response.status})`
+                `Search failed: ${response.status}`
             );
+
         }
 
 
@@ -1191,70 +1797,673 @@ async function searchLocora() {
 
         if (
             !data.success ||
-            !Array.isArray(data.results) ||
-            data.results.length === 0
-        ) {
-
-            selectedLocation = null;
-
-            status.textContent =
-                "We couldn't find that location.";
-
-            return;
-        }
-
-
-        const location =
-            data.results[0];
-
-
-        if (
-            !Number.isFinite(
-                Number(location.latitude)
-            ) ||
-            !Number.isFinite(
-                Number(location.longitude)
+            !Array.isArray(
+                data.results
             )
         ) {
 
             throw new Error(
-                "Location coordinates were not returned."
+                "Invalid API response."
             );
+
         }
+
+
+        const results =
+            data.results;
+
+
+        if (
+            results.length === 0
+        ) {
+
+            suggestions.innerHTML = `
+
+                <div class="location-empty">
+
+                    No locations found for
+                    <strong>
+                        ${escapeHtml(query)}
+                    </strong>.
+
+                </div>
+
+            `;
+
+            return;
+
+        }
+
+
+        /*
+         * IMPORTANT:
+         *
+         * We DO NOT automatically select
+         * the first result.
+         *
+         * The user must choose one.
+         */
+
+        suggestions.innerHTML =
+            results
+                .slice(0, 8)
+                .map(
+                    (
+                        location,
+                        index
+                    ) =>
+                        createLocationSuggestion(
+                            location,
+                            index
+                        )
+                )
+                .join("");
+
+
+        suggestions
+            .querySelectorAll(
+                ".location-suggestion"
+            )
+            .forEach(
+                button => {
+
+                    button.addEventListener(
+                        "click",
+                        () => {
+
+                            const index =
+                                Number(
+                                    button.dataset.index
+                                );
+
+
+                            selectLocation(
+                                results[index]
+                            );
+
+                        }
+                    );
+
+                }
+            );
+
+
+    } catch (error) {
+
+        console.error(
+            "Location search error:",
+            error
+        );
+
+
+        suggestions.innerHTML = `
+
+            <div class="location-error">
+
+                ❌ Unable to search locations right now.
+
+                <br>
+
+                <small>
+                    Please try again.
+                </small>
+
+            </div>
+
+        `;
+
+    }
+
+}
+
+
+/* =========================================================
+   CREATE LOCATION SUGGESTION
+========================================================= */
+
+function createLocationSuggestion(
+    location,
+    index
+) {
+
+    const name =
+        location.name ||
+        "Unknown location";
+
+
+    const displayName =
+        location.displayName ||
+        location.name ||
+        "Location";
+
+
+    return `
+
+        <button
+            type="button"
+            class="location-suggestion"
+            data-index="${index}"
+        >
+
+            <span class="suggestion-icon">
+                📍
+            </span>
+
+
+            <span class="suggestion-content">
+
+                <strong>
+                    ${escapeHtml(name)}
+                </strong>
+
+
+                <small>
+                    ${escapeHtml(displayName)}
+                </small>
+
+            </span>
+
+        </button>
+
+    `;
+
+}
+
+
+/* =========================================================
+   SELECT LOCATION
+========================================================= */
+
+function selectLocation(
+    location
+) {
+
+    const latitude =
+        Number(
+            location.latitude
+        );
+
+    const longitude =
+        Number(
+            location.longitude
+        );
+
+
+    if (
+        !Number.isFinite(latitude) ||
+        !Number.isFinite(longitude)
+    ) {
+
+        status.textContent =
+            "This location doesn't have valid coordinates.";
+
+        return;
+
+    }
+
+
+    selectedLocation = {
+
+        name:
+            location.name ||
+            "Selected location",
+
+        displayName:
+            location.displayName ||
+            location.name ||
+            "Selected location",
+
+        latitude,
+
+        longitude,
+
+        searchValue:
+            location.name ||
+            location.displayName ||
+            ""
+
+    };
+
+
+    /*
+     * Save it.
+     */
+
+    localStorage.setItem(
+        "locoraSelectedLocation",
+        JSON.stringify(
+            selectedLocation
+        )
+    );
+
+
+    /*
+     * Put the selected location
+     * into the search box.
+     */
+
+    input.value =
+        selectedLocation.name;
+
+
+    /*
+     * Enable Search.
+     */
+
+    searchButton.disabled =
+        false;
+
+
+    /*
+     * Hide suggestions.
+     */
+
+    hideSuggestions();
+
+
+    /*
+     * Show confirmation.
+     */
+
+    status.innerHTML = `
+
+        📍 Location selected.
+        Now choose what you want to discover.
+
+    `;
+
+
+    locationResult.innerHTML = `
+
+        <strong>
+
+            📍
+            ${escapeHtml(
+                selectedLocation.displayName
+            )}
+
+        </strong>
+
+
+        <small>
+
+            ${latitude.toFixed(5)}
+            ,
+            ${longitude.toFixed(5)}
+
+        </small>
+
+    `;
+
+
+    locationResult.classList.add(
+        "visible"
+    );
+
+}
+
+
+/* =========================================================
+   CURRENT LOCATION BUTTON
+========================================================= */
+
+currentLocationButton.addEventListener(
+    "click",
+    useCurrentLocation
+);
+
+
+function useCurrentLocation() {
+
+    if (
+        !navigator.geolocation
+    ) {
+
+        status.textContent =
+            "Your browser doesn't support location services.";
+
+        return;
+
+    }
+
+
+    currentLocationButton.disabled =
+        true;
+
+
+    currentLocationButton.innerHTML =
+        "📍 Finding your location...";
+
+
+    status.textContent =
+        "Please allow location access in your browser.";
+
+
+    navigator.geolocation.getCurrentPosition(
+
+        position => {
+
+            const latitude =
+                Number(
+                    position.coords.latitude
+                );
+
+            const longitude =
+                Number(
+                    position.coords.longitude
+                );
+
+
+            reverseGeocode(
+                latitude,
+                longitude
+            );
+
+        },
+
+
+        error => {
+
+            console.error(
+                "Geolocation error:",
+                error
+            );
+
+
+            if (
+                error.code ===
+                error.PERMISSION_DENIED
+            ) {
+
+                status.textContent =
+                    "Location access was denied. Allow location access and try again.";
+
+            } else if (
+                error.code ===
+                error.POSITION_UNAVAILABLE
+            ) {
+
+                status.textContent =
+                    "Your location could not be determined.";
+
+            } else if (
+                error.code ===
+                error.TIMEOUT
+            ) {
+
+                status.textContent =
+                    "Location request timed out. Try again.";
+
+            } else {
+
+                status.textContent =
+                    "Unable to find your location.";
+
+            }
+
+
+            currentLocationButton.disabled =
+                false;
+
+
+            currentLocationButton.innerHTML =
+                "📍 Use my current location";
+
+        },
+
+
+        {
+            enableHighAccuracy: true,
+
+            timeout: 15000,
+
+            maximumAge: 60000
+
+        }
+
+    );
+
+}
+
+
+/* =========================================================
+   REVERSE GEOCODING
+========================================================= */
+
+async function reverseGeocode(
+    latitude,
+    longitude
+) {
+
+    try {
+
+        status.textContent =
+            "📍 Identifying your location...";
+
+
+        const url =
+            "https://nominatim.openstreetmap.org/reverse?" +
+            new URLSearchParams({
+
+                lat:
+                    latitude,
+
+                lon:
+                    longitude,
+
+                format:
+                    "json",
+
+                addressdetails:
+                    "1"
+
+            });
+
+
+        const response =
+            await fetch(
+                url,
+                {
+                    headers: {
+                        "Accept":
+                            "application/json"
+                    }
+                }
+            );
+
+
+        if (
+            !response.ok
+        ) {
+
+            throw new Error(
+                `Reverse geocoding failed: ${response.status}`
+            );
+
+        }
+
+
+        const data =
+            await response.json();
+
+
+        const address =
+            data.address ||
+            {};
+
+
+        /*
+         * Pick the best recognizable
+         * location name.
+         */
+
+        const name =
+            address.city ||
+            address.town ||
+            address.village ||
+            address.municipality ||
+            address.county ||
+            address.state ||
+            "Current location";
+
+
+        const displayName =
+            data.display_name ||
+            name;
 
 
         selectedLocation = {
 
-            name:
-                location.name ||
-                value,
+            name,
 
-            displayName:
-                location.displayName ||
-                location.name ||
-                value,
+            displayName,
 
-            latitude:
-                Number(location.latitude),
+            latitude,
 
-            longitude:
-                Number(location.longitude)
+            longitude,
+
+            searchValue:
+                "current-location",
+
+            isCurrentLocation:
+                true
 
         };
+
+
+        localStorage.setItem(
+            "locoraSelectedLocation",
+            JSON.stringify(
+                selectedLocation
+            )
+        );
+
+
+        input.value =
+            name;
+
+
+        searchButton.disabled =
+            false;
+
+
+        hideSuggestions();
 
 
         locationResult.innerHTML = `
 
             <strong>
-                📍 ${escapeHtml(
-                    selectedLocation.displayName
+
+                📍 Using your current location
+
+            </strong>
+
+
+            <small>
+
+                ${escapeHtml(
+                    displayName
                 )}
+
+                <br>
+
+                ${latitude.toFixed(5)}
+                ,
+                ${longitude.toFixed(5)}
+
+            </small>
+
+        `;
+
+
+        locationResult.classList.add(
+            "visible"
+        );
+
+
+        status.innerHTML = `
+
+            📍
+            <strong>
+                You're here:
+            </strong>
+
+            ${escapeHtml(
+                displayName
+            )}
+
+        `;
+
+
+        /*
+         * We do NOT automatically search.
+         *
+         * The user can now choose
+         * Restaurants, Hotels, etc.
+         */
+
+    } catch (error) {
+
+        console.error(
+            "Reverse geocoding error:",
+            error
+        );
+
+
+        /*
+         * Even if the name lookup fails,
+         * keep the GPS coordinates.
+         */
+
+        selectedLocation = {
+
+            name:
+                "Current location",
+
+            displayName:
+                "Current location",
+
+            latitude,
+
+            longitude,
+
+            searchValue:
+                "current-location",
+
+            isCurrentLocation:
+                true
+
+        };
+
+
+        localStorage.setItem(
+            "locoraSelectedLocation",
+            JSON.stringify(
+                selectedLocation
+            )
+        );
+
+
+        input.value =
+            "Current location";
+
+
+        searchButton.disabled =
+            false;
+
+
+        locationResult.innerHTML = `
+
+            <strong>
+                📍 Current location
             </strong>
 
             <small>
-                ${selectedLocation.latitude.toFixed(5)}
+
+                ${latitude.toFixed(5)}
                 ,
-                ${selectedLocation.longitude.toFixed(5)}
+                ${longitude.toFixed(5)}
+
             </small>
 
         `;
@@ -1266,36 +2475,64 @@ async function searchLocora() {
 
 
         status.textContent =
-            "Location found. Now choose what you want to discover.";
-
-
-        document
-            .getElementById("discover")
-            .scrollIntoView({
-                behavior: "smooth",
-                block: "start"
-            });
-
-
-    } catch (error) {
-
-        console.error(
-            "Location search error:",
-            error
-        );
-
-        selectedLocation = null;
-
-        status.textContent =
-            "Unable to search right now. Please try again.";
+            "📍 Your coordinates were found. You can explore nearby places.";
 
     } finally {
 
-        button.disabled = false;
+        currentLocationButton.disabled =
+            false;
 
-        button.textContent =
-            "Search";
+
+        currentLocationButton.innerHTML =
+            "📍 Use my current location";
+
     }
+
+}
+
+
+/* =========================================================
+   SEARCH BUTTON
+========================================================= */
+
+function searchLocora() {
+
+    if (
+        !selectedLocation
+    ) {
+
+        status.textContent =
+            "Choose a location from the suggestions first.";
+
+        input.focus();
+
+        return;
+
+    }
+
+
+    status.innerHTML = `
+
+        📍 Selected:
+
+        <strong>
+            ${escapeHtml(
+                selectedLocation.displayName
+            )}
+        </strong>
+
+    `;
+
+
+    document
+        .getElementById(
+            "discover"
+        )
+        .scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+        });
+
 }
 
 
@@ -1331,25 +2568,25 @@ async function searchCategory(
         );
 
 
-    if (!selectedLocation) {
+    if (
+        !selectedLocation
+    ) {
 
-        document
-            .getElementById("searchInput")
-            .focus();
+        status.textContent =
+            "Please select a location first.";
 
+        input.focus();
 
-        document.getElementById(
-            "searchStatus"
-        ).textContent =
-            "Search for a city or location first.";
+        window.scrollTo({
 
-        document
-            .querySelector(".hero")
-            .scrollIntoView({
-                behavior: "smooth"
-            });
+            top: 0,
+
+            behavior: "smooth"
+
+        });
 
         return;
+
     }
 
 
@@ -1357,16 +2594,20 @@ async function searchCategory(
         .querySelectorAll(
             ".category-button"
         )
-        .forEach(button => {
+        .forEach(
+            button => {
 
-            button.classList.remove(
-                "active"
-            );
+                button.classList.remove(
+                    "active"
+                );
 
-        });
+            }
+        );
 
 
-    if (clickedButton) {
+    if (
+        clickedButton
+    ) {
 
         clickedButton.classList.add(
             "active"
@@ -1392,11 +2633,17 @@ async function searchCategory(
 
         <div class="loading-state">
 
-            <div style="font-size:30px;margin-bottom:10px;">
+            <div
+                style="
+                    font-size:30px;
+                    margin-bottom:10px;
+                "
+            >
                 🔎
             </div>
 
-            Finding ${categoryName.toLowerCase()}
+            Finding
+            ${categoryName.toLowerCase()}
             near you...
 
         </div>
@@ -1405,8 +2652,11 @@ async function searchCategory(
 
 
     resultsSection.scrollIntoView({
+
         behavior: "smooth",
+
         block: "start"
+
     });
 
 
@@ -1414,12 +2664,15 @@ async function searchCategory(
 
         const url =
             `${API_URL}/places` +
+
             `?lat=${encodeURIComponent(
                 selectedLocation.latitude
             )}` +
+
             `&lon=${encodeURIComponent(
                 selectedLocation.longitude
             )}` +
+
             `&category=${encodeURIComponent(
                 category
             )}`;
@@ -1429,11 +2682,14 @@ async function searchCategory(
             await fetch(url);
 
 
-        if (!response.ok) {
+        if (
+            !response.ok
+        ) {
 
             throw new Error(
                 `Places search failed (${response.status})`
             );
+
         }
 
 
@@ -1443,12 +2699,15 @@ async function searchCategory(
 
         if (
             !data.success ||
-            !Array.isArray(data.results)
+            !Array.isArray(
+                data.results
+            )
         ) {
 
             throw new Error(
                 "Invalid places response."
             );
+
         }
 
 
@@ -1461,31 +2720,46 @@ async function searchCategory(
                 places.length === 1
                     ? "result"
                     : "results"
-            } found within ${
-                data.radiusKm || 5
-            } km of ${
+            } found near ${
                 selectedLocation.name
             }.`;
 
 
-
-        if (places.length === 0) {
+        if (
+            places.length === 0
+        ) {
 
             resultsContainer.innerHTML = `
 
                 <div class="empty-state">
 
-                    <div style="font-size:35px;margin-bottom:10px;">
+                    <div
+                        style="
+                            font-size:35px;
+                            margin-bottom:10px;
+                        "
+                    >
                         📍
                     </div>
 
                     <strong>
-                        No ${categoryName.toLowerCase()}
+
+                        No
+                        ${categoryName.toLowerCase()}
                         found nearby.
+
                     </strong>
 
-                    <p style="margin-top:8px;">
-                        Try searching another location.
+
+                    <p
+                        style="
+                            margin-top:8px;
+                        "
+                    >
+
+                        Try another category
+                        or location.
+
                     </p>
 
                 </div>
@@ -1493,6 +2767,7 @@ async function searchCategory(
             `;
 
             return;
+
         }
 
 
@@ -1524,8 +2799,15 @@ async function searchCategory(
                     Unable to load places.
                 </strong>
 
-                <p style="margin-top:8px;">
+
+                <p
+                    style="
+                        margin-top:8px;
+                    "
+                >
+
                     Please try again in a moment.
+
                 </p>
 
             </div>
@@ -1535,7 +2817,9 @@ async function searchCategory(
 
         resultsSubtitle.textContent =
             "Something went wrong while searching.";
+
     }
+
 }
 
 
@@ -1565,11 +2849,15 @@ function createPlaceCard(
 
 
     const distance =
-        Number(place.distanceKm);
+        Number(
+            place.distanceKm
+        );
 
 
     const distanceText =
-        Number.isFinite(distance)
+        Number.isFinite(
+            distance
+        )
             ? `${distance.toFixed(2)} km`
             : "Nearby";
 
@@ -1602,7 +2890,9 @@ function createPlaceCard(
     `;
 
 
-    if (website) {
+    if (
+        website
+    ) {
 
         actions += `
 
@@ -1626,50 +2916,66 @@ function createPlaceCard(
 
         <article class="place-card">
 
+
             <div class="place-top">
 
                 <div class="place-icon">
                     ${icon}
                 </div>
 
+
                 <div class="place-distance">
+
                     ${escapeHtml(
                         distanceText
                     )}
+
                 </div>
 
             </div>
 
 
             <h3>
+
                 ${escapeHtml(
                     name
                 )}
+
             </h3>
 
 
             <div class="place-type">
+
                 ${escapeHtml(
                     type
                 )}
+
             </div>
 
 
             <div class="place-address">
-                📍 ${escapeHtml(
+
+                📍
+                ${escapeHtml(
                     address
                 )}
+
             </div>
 
 
             ${
                 place.phone
                     ? `
+
                         <div class="place-hours">
-                            📞 ${escapeHtml(
+
+                            📞
+                            ${escapeHtml(
                                 place.phone
                             )}
+
                         </div>
+
                     `
                     : ""
             }
@@ -1678,11 +2984,16 @@ function createPlaceCard(
             ${
                 place.openingHours
                     ? `
+
                         <div class="place-hours">
-                            🕒 ${escapeHtml(
+
+                            🕒
+                            ${escapeHtml(
                                 place.openingHours
                             )}
+
                         </div>
+
                     `
                     : ""
             }
@@ -1694,14 +3005,163 @@ function createPlaceCard(
 
             </div>
 
+
         </article>
 
     `;
+
 }
 
 
 /* =========================================================
-   HELPERS
+   LOAD SAVED LOCATION
+========================================================= */
+
+function loadSavedLocation() {
+
+    const saved =
+        localStorage.getItem(
+            "locoraSelectedLocation"
+        );
+
+
+    if (
+        !saved
+    ) {
+
+        return;
+
+    }
+
+
+    try {
+
+        const location =
+            JSON.parse(saved);
+
+
+        const latitude =
+            Number(
+                location.latitude
+            );
+
+        const longitude =
+            Number(
+                location.longitude
+            );
+
+
+        if (
+            !Number.isFinite(latitude) ||
+            !Number.isFinite(longitude)
+        ) {
+
+            return;
+
+        }
+
+
+        selectedLocation =
+            location;
+
+
+        input.value =
+            location.name ||
+            location.displayName ||
+            "";
+
+
+        searchButton.disabled =
+            false;
+
+
+        locationResult.innerHTML = `
+
+            <strong>
+
+                📍
+                ${escapeHtml(
+                    location.displayName ||
+                    location.name
+                )}
+
+            </strong>
+
+
+            <small>
+
+                ${latitude.toFixed(5)}
+                ,
+                ${longitude.toFixed(5)}
+
+            </small>
+
+        `;
+
+
+        locationResult.classList.add(
+            "visible"
+        );
+
+
+    } catch (
+        error
+    ) {
+
+        console.error(
+            "Saved location error:",
+            error
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   HIDE SUGGESTIONS
+========================================================= */
+
+function hideSuggestions() {
+
+    suggestions.classList.remove(
+        "visible"
+    );
+
+}
+
+
+/* =========================================================
+   CLICK OUTSIDE
+========================================================= */
+
+document.addEventListener(
+    "click",
+    event => {
+
+        const wrapper =
+            document.querySelector(
+                ".location-search-wrapper"
+            );
+
+
+        if (
+            wrapper &&
+            !wrapper.contains(
+                event.target
+            )
+        ) {
+
+            hideSuggestions();
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   WEBSITE NORMALIZER
 ========================================================= */
 
 function normalizeWebsite(
@@ -1711,7 +3171,9 @@ function normalizeWebsite(
     if (
         typeof website !== "string"
     ) {
+
         return null;
+
     }
 
 
@@ -1719,8 +3181,12 @@ function normalizeWebsite(
         website.trim();
 
 
-    if (!value) {
+    if (
+        !value
+    ) {
+
         return null;
+
     }
 
 
@@ -1729,7 +3195,9 @@ function normalizeWebsite(
             "javascript:"
         )
     ) {
+
         return null;
+
     }
 
 
@@ -1748,14 +3216,21 @@ function normalizeWebsite(
 
 
     return `https://${value}`;
+
 }
 
+
+/* =========================================================
+   ESCAPE HTML
+========================================================= */
 
 function escapeHtml(
     value
 ) {
 
-    return String(value)
+    return String(
+        value
+    )
 
         .replaceAll(
             "&",
@@ -1781,8 +3256,13 @@ function escapeHtml(
             "'",
             "&#039;"
         );
+
 }
 
+
+/* =========================================================
+   ESCAPE ATTRIBUTE
+========================================================= */
 
 function escapeAttribute(
     value
@@ -1791,20 +3271,15 @@ function escapeAttribute(
     return escapeHtml(
         value
     );
+
 }
 
 
 /* =========================================================
-   START EXPLORING
+   FOCUS SEARCH
 ========================================================= */
 
 function focusSearch() {
-
-    const input =
-        document.getElementById(
-            "searchInput"
-        );
-
 
     input.focus();
 
@@ -1819,32 +3294,8 @@ function focusSearch() {
 
 }
 
-
-/* =========================================================
-   ENTER KEY SEARCH
-========================================================= */
-
-document
-    .getElementById(
-        "searchInput"
-    )
-    .addEventListener(
-        "keydown",
-        event => {
-
-            if (
-                event.key === "Enter"
-            ) {
-
-                searchLocora();
-
-            }
-
-        }
-    );
-
 </script>
+
 
 </body>
 </html>
-```
